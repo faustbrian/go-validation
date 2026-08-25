@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/rules"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/rules"
 )
 
 func TestCollectionFailureAndShortCircuitBranches(t *testing.T) {

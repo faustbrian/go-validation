@@ -3,8 +3,8 @@ package rules_test
 import (
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/rules"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/rules"
 )
 
 type registration struct {

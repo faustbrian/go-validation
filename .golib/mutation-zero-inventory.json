@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "packages": [
+    {
+      "gremlins_verifier_sha256": "9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+      "gremlins_version": "v0.6.0",
+      "module_directory": ".",
+      "package_directory": "validationconfig",
+      "reason": "The package only constructs a generic value and delegates validation; the complete enabled Gremlins operator set discovers no viable transformations.",
+      "source_digest": "d82aac23d940f56f04d6c07c3a7e9c8bb1cc7662187d9dd85d25b06b58d362a8"
+    }
+  ]
+}

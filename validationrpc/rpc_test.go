@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/validationrpc"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/validationrpc"
 )
 
 func TestInvalidParamsPreservesSafeStableData(t *testing.T) {

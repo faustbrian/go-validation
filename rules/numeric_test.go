@@ -4,8 +4,8 @@ import (
 	"math"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/rules"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/rules"
 )
 
 func TestNumericRules(t *testing.T) {

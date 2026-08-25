@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	validationhttp "github.com/faustbrian/golib/pkg/validation/validationhttp"
+	validation "github.com/faustbrian/go-validation"
+	validationhttp "github.com/faustbrian/go-validation/validationhttp"
 )
 
 func TestProblemAndWriterAreRouterNeutralAndEscaped(t *testing.T) {

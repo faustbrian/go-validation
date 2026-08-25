@@ -3,7 +3,7 @@ package rules
 import (
 	"cmp"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
+	validation "github.com/faustbrian/go-validation"
 )
 
 // FieldsEqual requires two explicitly selected comparable fields to match.

@@ -1,6 +1,6 @@
 package rules
 
-import validation "github.com/faustbrian/golib/pkg/validation"
+import validation "github.com/faustbrian/go-validation"
 
 // Required accepts only present, non-empty values.
 func Required[T any]() validation.Validator[validation.Value[T]] {

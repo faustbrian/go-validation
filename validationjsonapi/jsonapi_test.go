@@ -3,8 +3,8 @@ package validationjsonapi_test
 import (
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/validationjsonapi"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/validationjsonapi"
 )
 
 func TestErrorsUseJSONPointersAndStableCodes(t *testing.T) {

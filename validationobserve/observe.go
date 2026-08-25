@@ -1,7 +1,7 @@
 // Package validationobserve exposes non-sensitive observation hooks.
 package validationobserve
 
-import validation "github.com/faustbrian/golib/pkg/validation"
+import validation "github.com/faustbrian/go-validation"
 
 // Observation contains bounded labels only. It intentionally excludes paths,
 // parameters, causes, and rejected values.

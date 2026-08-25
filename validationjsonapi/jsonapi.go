@@ -1,7 +1,7 @@
 // Package validationjsonapi projects reports into JSON:API error objects.
 package validationjsonapi
 
-import validation "github.com/faustbrian/golib/pkg/validation"
+import validation "github.com/faustbrian/go-validation"
 
 // Document is a JSON:API error document with report-level metadata.
 type Document struct {

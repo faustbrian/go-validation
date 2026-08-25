@@ -1,7 +1,7 @@
 // Package validationrpc projects reports into JSON-RPC invalid-params errors.
 package validationrpc
 
-import validation "github.com/faustbrian/golib/pkg/validation"
+import validation "github.com/faustbrian/go-validation"
 
 // Error is a JSON-RPC error object.
 type Error struct {

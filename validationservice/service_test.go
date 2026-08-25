@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/validationservice"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/validationservice"
 )
 
 func TestHookAndChainRemainTransportNeutral(t *testing.T) {

@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/validationhttp"
-	"github.com/faustbrian/golib/pkg/validation/validationjsonapi"
-	"github.com/faustbrian/golib/pkg/validation/validationrpc"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/validationhttp"
+	"github.com/faustbrian/go-validation/validationjsonapi"
+	"github.com/faustbrian/go-validation/validationrpc"
 )
 
 func TestTransportProjectionsPreserveConformanceAndEscapeLocations(t *testing.T) {

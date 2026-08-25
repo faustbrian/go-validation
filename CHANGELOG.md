@@ -5,6 +5,8 @@ versioning.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-25
+
 ### Documentation
 
 - Replace obsolete standalone-repository links and workflow claims with
@@ -14,6 +16,7 @@ versioning.
 
 ### Changed
 
+- Publish the module from its standalone `github.com/faustbrian/go-validation` identity while preserving its documented API and behavior.
 - Preserve precomputed validator configuration through explicit constructors,
   removing analyzer-ambiguous closure assignments without changing behavior.
 
@@ -48,4 +51,5 @@ versioning.
 - A versioned six-target fuzz-corpus inventory and 90/90 mutation evidence
   spanning every standard-rule family and all hardening-critical boundaries.
 
-[Unreleased]: https://github.com/faustbrian/golib/commits/main/pkg/validation
+[Unreleased]: https://github.com/faustbrian/go-validation/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/faustbrian/go-validation/releases/tag/v1.0.0

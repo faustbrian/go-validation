@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
+	validation "github.com/faustbrian/go-validation"
 )
 
 type panickingAsyncValidator struct{}

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/validationjsonapi"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/validationjsonapi"
 )
 
 func FuzzProjectionPaths(f *testing.F) {

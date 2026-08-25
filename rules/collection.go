@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strconv"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
+	validation "github.com/faustbrian/go-validation"
 )
 
 // SliceSize requires an inclusive slice-size range.

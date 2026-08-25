@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/validationobserve"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/validationobserve"
 )
 
 type recorder struct {

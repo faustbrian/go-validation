@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/structplan"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/structplan"
 )
 
 func TestCompileRejectsInvalidLimitsAndUnsupportedRoot(t *testing.T) {

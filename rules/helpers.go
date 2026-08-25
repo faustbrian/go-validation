@@ -4,7 +4,7 @@ package rules
 import (
 	"reflect"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
+	validation "github.com/faustbrian/go-validation"
 )
 
 func pass(ctx validation.Context) validation.Report {

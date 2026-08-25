@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
+	validation "github.com/faustbrian/go-validation"
 )
 
 // Problem is an RFC 9457-style validation problem.

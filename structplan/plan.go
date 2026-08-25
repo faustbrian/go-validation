@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
+	validation "github.com/faustbrian/go-validation"
 )
 
 var (

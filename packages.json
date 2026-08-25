@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-validation",
+  "packages": [
+    {
+      "module_directory": ".",
+      "directory": ".",
+      "name": "validation",
+      "import_path": "github.com/faustbrian/go-validation",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "rules",
+      "name": "rules",
+      "import_path": "github.com/faustbrian/go-validation/rules",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "structplan",
+      "name": "structplan",
+      "import_path": "github.com/faustbrian/go-validation/structplan",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "validationconfig",
+      "name": "validationconfig",
+      "import_path": "github.com/faustbrian/go-validation/validationconfig",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "validationhttp",
+      "name": "validationhttp",
+      "import_path": "github.com/faustbrian/go-validation/validationhttp",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "validationjsonapi",
+      "name": "validationjsonapi",
+      "import_path": "github.com/faustbrian/go-validation/validationjsonapi",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "validationobserve",
+      "name": "validationobserve",
+      "import_path": "github.com/faustbrian/go-validation/validationobserve",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "validationrpc",
+      "name": "validationrpc",
+      "import_path": "github.com/faustbrian/go-validation/validationrpc",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "validationservice",
+      "name": "validationservice",
+      "import_path": "github.com/faustbrian/go-validation/validationservice",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "validationtest",
+      "name": "validationtest",
+      "import_path": "github.com/faustbrian/go-validation/validationtest",
+      "kind": "test support",
+      "production": false,
+      "executable": true,
+      "coverage_required": false,
+      "build_required": true,
+      "build_tags": []
+    },
+    {
+      "module_directory": ".",
+      "directory": "validationtext",
+      "name": "validationtext",
+      "import_path": "github.com/faustbrian/go-validation/validationtext",
+      "kind": "public",
+      "production": true,
+      "executable": true,
+      "coverage_required": true,
+      "build_required": true,
+      "build_tags": []
+    }
+  ]
+}

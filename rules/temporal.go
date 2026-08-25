@@ -3,7 +3,7 @@ package rules
 import (
 	"time"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
+	validation "github.com/faustbrian/go-validation"
 )
 
 // Clock supplies explicit deterministic current time.

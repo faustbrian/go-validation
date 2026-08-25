@@ -1,3 +1,3 @@
-module github.com/faustbrian/golib/pkg/validation
+module github.com/faustbrian/go-validation
 
 go 1.26.6

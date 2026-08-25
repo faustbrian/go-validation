@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
-	"github.com/faustbrian/golib/pkg/validation/rules"
-	"github.com/faustbrian/golib/pkg/validation/validationconfig"
+	validation "github.com/faustbrian/go-validation"
+	"github.com/faustbrian/go-validation/rules"
+	"github.com/faustbrian/go-validation/validationconfig"
 )
 
 func TestCheckImplementsSmallConfigContract(t *testing.T) {

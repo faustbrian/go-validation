@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	validation "github.com/faustbrian/golib/pkg/validation"
+	validation "github.com/faustbrian/go-validation"
 )
 
 type panickingStringValidator struct{}
