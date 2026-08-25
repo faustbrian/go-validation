@@ -7,6 +7,9 @@ versioning.
 
 ### Changed
 
+- Bind the reviewed zero-mutant validation-config inventory to its canonical
+  standalone source identity.
+
 - Exclude intentional nested modules from root local-proxy archives so local,
   bootstrap, CI, and public module checksums describe the same source
   boundary.
