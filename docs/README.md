@@ -8,7 +8,6 @@
 - [Migration and compatibility](migration.md)
 - [Security model](security.md)
 - [Performance](performance.md)
-- [Hardening report](hardening-report.md)
 - [Fuzz corpus](fuzz-corpus.md)
 - [FAQ](faq.md)
 - [Troubleshooting](troubleshooting.md)

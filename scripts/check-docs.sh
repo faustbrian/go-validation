@@ -5,7 +5,7 @@ required=(
 	README.md CHANGELOG.md CONTRIBUTING.md
 	docs/README.md docs/api.md docs/rules.md docs/semantics.md docs/guides.md
 	docs/adoption.md docs/migration.md docs/security.md docs/performance.md
-	docs/hardening-report.md docs/fuzz-corpus.md docs/faq.md docs/troubleshooting.md
+	docs/fuzz-corpus.md docs/faq.md docs/troubleshooting.md
 	docs/compatibility.md
 )
 for file in "${required[@]}"; do

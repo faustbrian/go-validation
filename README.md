@@ -63,7 +63,6 @@ context-aware external checks. Reflection is optional and isolated in
 - [Normative semantics](docs/semantics.md)
 - [Guides](docs/guides.md)
 - [Security model](docs/security.md)
-- [Hardening evidence](docs/hardening-report.md)
 - [Laravel and cline/struct adoption](docs/adoption.md)
 - [Compatibility](docs/compatibility.md)
 
@@ -80,8 +79,3 @@ prerequisite for local development.
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-## Ecosystem
-
-Use the [Golib documentation portal](https://github.com/faustbrian/golib/blob/main/docs/index.md)
-to choose companion packages, supported stacks, recipes, and operations guidance.
