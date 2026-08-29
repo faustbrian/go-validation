@@ -8,7 +8,7 @@ and projection fields follow semantic versioning after v1. Adding a new rule is
 minor; changing an existing pass/fail boundary, code, or path is breaking.
 Application prose is not part of the semantic contract.
 
-Run `make api-compat` during upgrades and compare `CHANGELOG.md`. Re-run local
+Run `golib api check` during upgrades and compare `CHANGELOG.md`. Re-run local
 truth tables for application-specific optional/null decoding because Go
 decoders can collapse states before this package sees them.
 

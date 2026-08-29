@@ -63,7 +63,6 @@ context-aware external checks. Reflection is optional and isolated in
 - [Normative semantics](docs/semantics.md)
 - [Guides](docs/guides.md)
 - [Security model](docs/security.md)
-- [Hardening evidence](docs/hardening-report.md)
 - [Laravel and cline/struct adoption](docs/adoption.md)
 - [Compatibility](docs/compatibility.md)
 
@@ -73,15 +72,10 @@ context-aware external checks. Reflection is optional and isolated in
 make check
 ```
 
-Every blocking CI command has a local Make target. `make nilaway` is advisory.
+The Makefile delegates to the same released `golib` contract used by CI.
 Hosted CI is a release integrator's final external verification step, not a
 prerequisite for local development.
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-## Ecosystem
-
-Use the [Golib documentation portal](https://github.com/faustbrian/golib/blob/main/docs/index.md)
-to choose companion packages, supported stacks, recipes, and operations guidance.

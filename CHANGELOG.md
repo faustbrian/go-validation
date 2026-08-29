@@ -5,6 +5,17 @@ versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- Replace copied repository verification tooling with the checksum-pinned
+  `go-library-tools` v1.0.7 contract while preserving package behavior,
+  public APIs, dependency checksums, and mutation evidence.
+
+### Documentation
+
+- Replace archived monorepo links and completed execution artifacts with a
+  standalone, human-oriented documentation structure.
+
 ## [1.0.0] - 2026-08-25
 
 ### Changed
@@ -32,7 +43,7 @@ versioning.
 - Replace obsolete standalone-repository links and workflow claims with
   monorepo-canonical targets and current release guidance.
 
-- Link the package README to the repository-wide Golib documentation portal.
+- Link the package README to package-owned documentation.
 
 ### Changed
 

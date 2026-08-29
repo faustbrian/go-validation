@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-validation",
+  "module": ".",
+  "package": "validationobserve",
+  "gate": "mutation",
+  "input_digest": "sha256:28b45cc5b4027e73c817565d663ba808941c998f4d2a5ef066e559fb40bce7e2",
+  "verifier_digest": "sha256:9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+  "result": "passed",
+  "report_digest": "sha256:6f7df5b7ce235d4d39140b05bb9362f5fc5b567828c137a9357a39a6a6066ab9",
+  "environment": {
+    "CGO_ENABLED": "1",
+    "GOARCH": "arm64",
+    "GOOS": "darwin",
+    "GOVERSION": "go1.27.0",
+    "gremlins_binary_sha256": "sha256:6a2beddc477eb410f8a670b6c9049558563d3c4327498fe31604d31c773a959e"
+  },
+  "completed_at": "2026-08-29T11:52:49.236868Z"
+}

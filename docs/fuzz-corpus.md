@@ -1,8 +1,8 @@
 # Fuzz corpus
 
-`scripts/check-fuzz.sh` runs six bounded native Go fuzz targets. Every target
-starts with deterministic semantic seeds; minimized defects that add new
-behavioral coverage are retained under `testdata/fuzz`.
+The `fuzz` operation in `.golib.yaml` runs six bounded native Go fuzz targets.
+Every target starts with deterministic semantic seeds; minimized defects that
+add new behavioral coverage are retained under `testdata/fuzz`.
 
 | Package and target | Seed and hostile-input coverage | Per-input bound |
 | --- | --- | --- |
@@ -18,12 +18,12 @@ minimized regression inputs for structural path identity, oversized path
 handling, and the secret-leak oracle. Native seed calls remain source-visible
 beside each target so clean checkouts execute the same starting corpus.
 
-Run the release smoke with `make fuzz`. Increase dwell time without changing
-the target matrix with:
+Run the configured release smoke with:
 
 ```sh
-FUZZ_TIME=30s make fuzz
+make check
 ```
 
-Fuzzing supplements, but does not replace, deterministic boundary, race,
-mutation, and resource tests.
+The shared tool owns the target selection and `10000x` budget. Fuzzing
+supplements, but does not replace, deterministic boundary, race, mutation, and
+resource tests.
