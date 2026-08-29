@@ -1,4 +1,3 @@
-PACKAGE github.com/faustbrian/go-validation
 package validation // import "github.com/faustbrian/go-validation"
 
 Package validation provides typed, deterministic, bounded application validation
@@ -334,7 +333,6 @@ func (v Violation) Severity() Severity
 func (v Violation) String() string
     String deliberately excludes parameters, causes, and rejected values.
 
-PACKAGE github.com/faustbrian/go-validation/rules
 package rules // import "github.com/faustbrian/go-validation/rules"
 
 Package rules provides reusable typed deterministic validators.
@@ -503,7 +501,6 @@ type Interval struct {
 }
     Interval is a closed-open application time interval.
 
-PACKAGE github.com/faustbrian/go-validation/structplan
 package structplan // import "github.com/faustbrian/go-validation/structplan"
 
 Package structplan provides optional typed and startup-compiled struct plans.
@@ -584,7 +581,6 @@ func CompileTags[T any](limits validation.Limits) (*TagPlan[T], error)
 func (plan *TagPlan[T]) Validate(ctx validation.Context, value T) validation.Report
     Validate evaluates precompiled fields in deterministic declaration order.
 
-PACKAGE github.com/faustbrian/go-validation/validationconfig
 package validationconfig // import "github.com/faustbrian/go-validation/validationconfig"
 
 Package validationconfig adapts typed validators to a small config contract.
@@ -609,7 +605,6 @@ type Validator interface {
 }
     Validator is the minimal validation contract used by configuration loaders.
 
-PACKAGE github.com/faustbrian/go-validation/validationhttp
 package validationhttp // import "github.com/faustbrian/go-validation/validationhttp"
 
 Package validationhttp provides router-neutral HTTP report projection.
@@ -649,7 +644,6 @@ type Problem struct {
 func FromReport(report validation.Report) Problem
     FromReport projects a report into an unprocessable-content problem.
 
-PACKAGE github.com/faustbrian/go-validation/validationjsonapi
 package validationjsonapi // import "github.com/faustbrian/go-validation/validationjsonapi"
 
 Package validationjsonapi projects reports into JSON:API error objects.
@@ -690,7 +684,6 @@ type Source struct {
 }
     Source identifies the invalid document location.
 
-PACKAGE github.com/faustbrian/go-validation/validationobserve
 package validationobserve // import "github.com/faustbrian/go-validation/validationobserve"
 
 Package validationobserve exposes non-sensitive observation hooks.
@@ -716,7 +709,6 @@ type Observer interface {
 }
     Observer receives safe validation observations.
 
-PACKAGE github.com/faustbrian/go-validation/validationrpc
 package validationrpc // import "github.com/faustbrian/go-validation/validationrpc"
 
 Package validationrpc projects reports into JSON-RPC invalid-params errors.
@@ -748,7 +740,6 @@ type Violation struct {
 }
     Violation is a safe JSON-RPC validation finding.
 
-PACKAGE github.com/faustbrian/go-validation/validationservice
 package validationservice // import "github.com/faustbrian/go-validation/validationservice"
 
 Package validationservice provides transport-neutral service hook contracts.
@@ -771,7 +762,6 @@ type Validator[T any] interface {
 func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
     Chain evaluates service hooks in declaration order.
 
-PACKAGE github.com/faustbrian/go-validation/validationtest
 package validationtest // import "github.com/faustbrian/go-validation/validationtest"
 
 Package validationtest provides reusable report assertions and conformance
@@ -812,7 +802,6 @@ type TestingT interface {
 }
     TestingT is the subset of testing.TB used by these helpers.
 
-PACKAGE github.com/faustbrian/go-validation/validationtext
 package validationtext // import "github.com/faustbrian/go-validation/validationtext"
 
 Package validationtext applies application-supplied message catalogs.

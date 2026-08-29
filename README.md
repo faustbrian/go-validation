@@ -72,7 +72,7 @@ context-aware external checks. Reflection is optional and isolated in
 make check
 ```
 
-Every blocking CI command has a local Make target. `make nilaway` is advisory.
+The Makefile delegates to the same released `golib` contract used by CI.
 Hosted CI is a release integrator's final external verification step, not a
 prerequisite for local development.
 

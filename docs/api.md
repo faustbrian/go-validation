@@ -1,6 +1,6 @@
 # API reference
 
-The checked API snapshot is `api/baseline.txt`; `make api-compat` detects any
+The checked API snapshot is `api/baseline.txt`; `golib api check` detects any
 change. Go package documentation remains the exhaustive symbol-level source.
 
 ## Root package

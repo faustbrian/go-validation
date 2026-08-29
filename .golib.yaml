@@ -1,0 +1,85 @@
+schema_version: 1
+tool_version: v1.0.7
+tool_checksums_sha256: beb57df2dff76b4a0044af843398baecab55a3d420986d9be7c9b14ca88befef
+
+manifest:
+  modules: modules.json
+  packages: packages.json
+
+evidence:
+  root: .verification
+
+mutation:
+  root: .verification/mutation
+  imports:
+    - module: .
+      archive: .verification/mutation/bootstrap/root.zip
+      ledger: .verification/mutation/migration-ledger.json
+
+api:
+  baselines:
+    - module: .
+      mode: go-doc
+      path: api/baseline.txt
+      packages:
+        - .
+        - ./rules
+        - ./structplan
+        - ./validationconfig
+        - ./validationhttp
+        - ./validationjsonapi
+        - ./validationobserve
+        - ./validationrpc
+        - ./validationservice
+        - ./validationtest
+        - ./validationtext
+
+operations:
+  - module: .
+    gate: docs
+    steps:
+      - type: go-test
+        packages: [./...]
+        run: '^Example'
+        timeout: 20m
+  - module: .
+    gate: fuzz
+    steps:
+      - type: go-test
+        packages: [.]
+        fuzz: '^FuzzPathAndReportSafety$'
+        budget: 10000x
+        timeout: 2m
+      - type: go-test
+        packages: [./rules]
+        fuzz: '^FuzzUnicodeAndMalformedPrimitives$'
+        budget: 10000x
+        timeout: 2m
+      - type: go-test
+        packages: [./structplan]
+        fuzz: '^FuzzTagGrammarNeverPanics$'
+        budget: 10000x
+        timeout: 2m
+      - type: go-test
+        packages: [./structplan]
+        fuzz: '^FuzzCompiledPlansAcrossSupportedShapes$'
+        budget: 10000x
+        timeout: 2m
+      - type: go-test
+        packages: [./structplan]
+        fuzz: '^FuzzTypedPlanConstructionNeverPanics$'
+        budget: 10000x
+        timeout: 2m
+      - type: go-test
+        packages: [./validationjsonapi]
+        fuzz: '^FuzzProjectionPaths$'
+        budget: 10000x
+        timeout: 2m
+  - module: .
+    gate: benchmark
+    steps:
+      - type: go-test
+        packages: [./...]
+        benchmark: BenchmarkValidation
+        budget: 100ms
+        timeout: 20m

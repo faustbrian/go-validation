@@ -5,6 +5,12 @@ versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- Replace copied repository verification tooling with the checksum-pinned
+  `go-library-tools` v1.0.7 contract while preserving package behavior,
+  public APIs, dependency checksums, and mutation evidence.
+
 ### Documentation
 
 - Replace archived monorepo links and completed execution artifacts with a
