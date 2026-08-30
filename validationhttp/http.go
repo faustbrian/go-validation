@@ -8,7 +8,7 @@ import (
 	validation "github.com/faustbrian/go-validation"
 )
 
-// Problem is an RFC 9457-style validation problem.
+// Problem is RFC 9457-inspired, with package extensions; it is not complete.
 type Problem struct {
 	Type   string  `json:"type"`
 	Title  string  `json:"title"`

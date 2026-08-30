@@ -32,7 +32,10 @@ relevant child. Warning-only reports are non-blocking.
 Field segments render as `profile.name`, indexes as `items[2]`, map keys as
 `labels[key]`, and generic items as `[]`. JSON pointers use RFC 6901 escaping:
 `a/b~c` becomes `/a~1b~0c`. Segments retain their kind. Reports replace a path
-longer than `MaxPathLength` with a root `path_limit` violation.
+longer than `MaxPathLength` with a root `path_limit` violation. Root renders
+as the empty pointer. Generic items render as the literal `-` token; this
+package does not evaluate pointers or claim JSON Patch append semantics. See
+the [specification decisions](specification-decisions.md).
 
 ## Aggregation
 

@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "decisions": [
+    {
+      "id": "VALIDATION-DEC-001",
+      "authoritative_sources": [
+        "rfc6901-source"
+      ],
+      "executable_evidence": [
+        "TestPathPreservesTypedSegmentsAndEscapesPointers",
+        "TestErrorsUseJSONPointersAndStableCodes",
+        "TestTransportProjectionsPreserveConformanceAndEscapeLocations"
+      ],
+      "fixtures": [],
+      "fuzz": [
+        "FuzzPathAndReportSafety",
+        "FuzzProjectionPaths"
+      ],
+      "interoperability_evidence": [],
+      "interoperability_classification": "not assessed",
+      "differential_evidence": [],
+      "differential_classification": "not assessed",
+      "public_behavior": [
+        "JSONPointer returns the empty string for RootPath and emits one slash-prefixed reference token per typed segment, replacing each tilde with ~0 before replacing each slash with ~1."
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-002",
+      "authoritative_sources": [
+        "rfc6901-source"
+      ],
+      "executable_evidence": [
+        "TestPathPreservesTypedSegmentsAndEscapesPointers"
+      ],
+      "fixtures": [],
+      "fuzz": [
+        "FuzzPathAndReportSafety"
+      ],
+      "interoperability_evidence": [],
+      "interoperability_classification": "not assessed",
+      "differential_evidence": [],
+      "differential_classification": "not assessed",
+      "public_behavior": [
+        "JSONPointer serializes Item as the literal - reference token but neither evaluates that token nor claims JSON Patch append semantics."
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-003",
+      "authoritative_sources": [
+        "jsonapi-source"
+      ],
+      "executable_evidence": [
+        "TestErrorsUseJSONPointersAndStableCodes",
+        "TestWarningsAndTruncationRemainMachineReadable",
+        "TestTruncatedBlockingStateSurvivesWarningRetention",
+        "TestTransportProjectionsPreserveConformanceAndEscapeLocations"
+      ],
+      "fixtures": [],
+      "fuzz": [
+        "FuzzProjectionPaths"
+      ],
+      "interoperability_evidence": [],
+      "interoperability_classification": "not assessed",
+      "differential_evidence": [],
+      "differential_classification": "not assessed",
+      "public_behavior": [
+        "Errors emits an errors array whose objects contain string status, stable code, RFC 6901 source pointer, and package-owned parameters and severity meta; top-level meta contains truncated and has_errors. Callers remain responsible for ensuring each pointer identifies an existing value in the request document."
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-004",
+      "authoritative_sources": [
+        "jsonrpc-source"
+      ],
+      "executable_evidence": [
+        "TestInvalidParamsPreservesSafeStableData",
+        "TestInvalidParamsProjectsWarningsAndTruncation",
+        "TestTransportProjectionsPreserveConformanceAndEscapeLocations"
+      ],
+      "fixtures": [],
+      "fuzz": [],
+      "interoperability_evidence": [],
+      "interoperability_classification": "not assessed",
+      "differential_evidence": [],
+      "differential_classification": "not assessed",
+      "public_behavior": [
+        "InvalidParams returns code -32602, message Invalid params, and package-owned data containing ordered violations, truncation, report-level has_errors, safe parameters, and severity."
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-005",
+      "authoritative_sources": [
+        "rfc9457-source"
+      ],
+      "executable_evidence": [
+        "TestProblemAndWriterAreRouterNeutralAndEscaped",
+        "TestWarningProblemPreservesSeverityAndTruncation",
+        "TestTransportProjectionsPreserveConformanceAndEscapeLocations"
+      ],
+      "fixtures": [],
+      "fuzz": [],
+      "interoperability_evidence": [],
+      "interoperability_classification": "not assessed",
+      "differential_evidence": [],
+      "differential_classification": "not assessed",
+      "public_behavior": [
+        "FromReport and WriteProblem expose an RFC 9457-inspired shape with type, title, synchronized numeric status, errors, and optional truncated; the package does not claim complete RFC 9457 compliance."
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-006",
+      "authoritative_sources": [
+        "jsonapi-source",
+        "rfc6901-source",
+        "rfc9457-source",
+        "jsonrpc-source"
+      ],
+      "executable_evidence": [
+        "TestTransportProjectionsPreserveConformanceAndEscapeLocations",
+        "TestWarningProblemPreservesSeverityAndTruncation",
+        "TestWarningsAndTruncationRemainMachineReadable",
+        "TestInvalidParamsProjectsWarningsAndTruncation"
+      ],
+      "fixtures": [],
+      "fuzz": [
+        "FuzzPathAndReportSafety",
+        "FuzzProjectionPaths"
+      ],
+      "interoperability_evidence": [],
+      "interoperability_classification": "not assessed",
+      "differential_evidence": [],
+      "differential_classification": "not assessed",
+      "public_behavior": [
+        "All projections preserve retained violation order, stable codes, safe parameters, severity, truncation, and report-level blocking state where their public shape supports it, and JSON encoding escapes hostile location text."
+      ]
+    }
+  ]
+}

@@ -3,6 +3,8 @@
 - [API reference](api.md)
 - [Rule catalog](rules.md)
 - [Normative semantics](semantics.md)
+- [Specification decisions](specification-decisions.md)
+- [Specification conformance](../specification/README.md)
 - [Guides](guides.md)
 - [Adoption from Laravel and cline/struct](adoption.md)
 - [Migration and compatibility](migration.md)

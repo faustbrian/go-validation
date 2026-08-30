@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-08-30",
+  "review_interval_days": 90,
+  "authorities": [
+    {
+      "id": "rfc6901-source",
+      "kind": "specification",
+      "version": "RFC 6901",
+      "url": "https://www.rfc-editor.org/rfc/rfc6901.txt",
+      "sha256": "12f9f4fc13d686aa4fbe7d144d70166cd3fcd4ab89174c2b13bda8f4b55e49da",
+      "specifications": [
+        "RFC 6901 JSON Pointer"
+      ]
+    },
+    {
+      "id": "rfc6901-errata",
+      "kind": "errata",
+      "url": "https://errata.rfc-editor.org/search/?rfc_number=6901&presentation=records",
+      "sha256": "7d102edeb2f00d3d5d56bfb207aac70cceb15b3aa07a915e4e524b600be1007e",
+      "specifications": [
+        "RFC 6901 JSON Pointer"
+      ]
+    },
+    {
+      "id": "rfc9457-source",
+      "kind": "specification",
+      "version": "RFC 9457",
+      "url": "https://www.rfc-editor.org/rfc/rfc9457.txt",
+      "sha256": "f2b3db92fb0bf3489cb3841a0da0c0d88dff40797b64d40b6123085183886c7b",
+      "specifications": [
+        "RFC 9457 Problem Details for HTTP APIs"
+      ]
+    },
+    {
+      "id": "rfc9457-errata",
+      "kind": "errata",
+      "url": "https://errata.rfc-editor.org/search/?rfc_number=9457&presentation=records",
+      "sha256": "1351e3a7f2485886ebc4215bbc4e534fd275eb77a057dd82e84076f861a702c6",
+      "specifications": [
+        "RFC 9457 Problem Details for HTTP APIs"
+      ]
+    },
+    {
+      "id": "jsonapi-source",
+      "kind": "specification",
+      "version": "JSON:API 1.1",
+      "url": "https://jsonapi.org/format/1.1/",
+      "sha256": "0619dfb37f2b46f10960c393ec8fff157f4eca04fe21b278b23f39056b863050",
+      "specifications": [
+        "JSON:API 1.1"
+      ]
+    },
+    {
+      "id": "jsonapi-releases",
+      "kind": "releases",
+      "url": "https://jsonapi.org/format/1.1/",
+      "sha256": "0619dfb37f2b46f10960c393ec8fff157f4eca04fe21b278b23f39056b863050",
+      "specifications": [
+        "JSON:API 1.1"
+      ]
+    },
+    {
+      "id": "jsonrpc-source",
+      "kind": "specification",
+      "version": "JSON-RPC 2.0",
+      "url": "https://www.jsonrpc.org/specification",
+      "sha256": "8fe1edfdca511d309e712e47447457ea5159b728ec02071a84593aed692aefeb",
+      "specifications": [
+        "JSON-RPC 2.0"
+      ]
+    },
+    {
+      "id": "jsonrpc-releases",
+      "kind": "releases",
+      "url": "https://www.jsonrpc.org/specification",
+      "sha256": "8fe1edfdca511d309e712e47447457ea5159b728ec02071a84593aed692aefeb",
+      "specifications": [
+        "JSON-RPC 2.0"
+      ]
+    }
+  ]
+}

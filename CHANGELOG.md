@@ -13,6 +13,16 @@ versioning.
 
 ### Documentation
 
+- Add the [specification decision register](docs/specification-decisions.md)
+  and conformance governance for bounded RFC 6901, RFC 9457, JSON:API 1.1,
+  and JSON-RPC 2.0 claims:
+  - VALIDATION-DEC-001 sha256:95c377bc8aff8aaba04b1e6add8daaf3f65c8823cb4ecb75ee0d56003220b80c
+  - VALIDATION-DEC-002 sha256:16768491f285e40cd325a055fce9de7de4425f5d7e788d68895305c5019d8e66
+  - VALIDATION-DEC-003 sha256:adb41196694f54e3eb093a6a94a67ee9d2c26baf2d1708f954fd1a5912e301cc
+  - VALIDATION-DEC-004 sha256:ae1b9622b0ed448c4c2b91e2eb016db6882a82ac092d6b08668823a1e1fd6edf
+  - VALIDATION-DEC-005 sha256:ad54e8018ffdec79c08070e8dcec8473d95b04d2b518ad7033f40e73f5bc08ca
+  - VALIDATION-DEC-006 sha256:721619a7666ab86da9fd252bf8d05beb9b9568f9e25f0ac569e03a01dca14bc8
+
 - Replace archived monorepo links and completed execution artifacts with a
   standalone, human-oriented documentation structure.
 

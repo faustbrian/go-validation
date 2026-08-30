@@ -1,4 +1,5 @@
 // Package validationjsonapi projects reports into JSON:API error objects.
+// Severity and aggregation metadata are package-owned extensions.
 package validationjsonapi
 
 import validation "github.com/faustbrian/go-validation"

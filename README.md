@@ -61,6 +61,8 @@ context-aware external checks. Reflection is optional and isolated in
 - [API and packages](docs/api.md)
 - [Rule catalog](docs/rules.md)
 - [Normative semantics](docs/semantics.md)
+- [Specification decisions](docs/specification-decisions.md)
+- [Specification conformance](specification/README.md)
 - [Guides](docs/guides.md)
 - [Security model](docs/security.md)
 - [Laravel and cline/struct adoption](docs/adoption.md)

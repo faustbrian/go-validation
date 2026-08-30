@@ -165,16 +165,23 @@
       "build_tags": [],
       "test_tags": [],
       "interoperability_tools": [],
-      "specifications": [],
+      "specifications": [
+        "RFC 6901 JSON Pointer",
+        "RFC 9457 Problem Details for HTTP APIs",
+        "JSON:API 1.1",
+        "JSON-RPC 2.0"
+      ],
       "conformance_corpora": [],
-      "provenance": [],
+      "provenance": [
+        "specification/manifest.tsv"
+      ],
       "goal_files": [],
       "goal_status": "not-applicable",
       "goal_evidence": [],
       "gates": {
         "api_compatibility": true,
         "benchmarks": true,
-        "conformance": false,
+        "conformance": true,
         "coverage": true,
         "documentation": true,
         "fuzz": true,
