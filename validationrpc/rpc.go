@@ -1,4 +1,5 @@
 // Package validationrpc projects reports into JSON-RPC invalid-params errors.
+// The data member is a package-owned JSON-RPC 2.0 extension.
 package validationrpc
 
 import validation "github.com/faustbrian/go-validation"

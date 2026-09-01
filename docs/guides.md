@@ -76,14 +76,21 @@ messages remain empty. Translation cannot replace codes or paths.
 ## JSON-RPC, JSON:API, and HTTP
 
 - `validationrpc.InvalidParams(report)` returns code `-32602` with ordered data,
-  truncation, and report-level blocking state.
+  truncation, and report-level blocking state. Its `data` shape is package
+  policy, not JSON-RPC-defined data.
 - `validationjsonapi.Errors(report)` returns a document with error severity,
-  source pointers, truncation, and report-level blocking state.
+  source pointers, truncation, and report-level blocking state. Severity and
+  aggregation metadata are package-owned JSON:API extensions. Callers must use
+  paths that identify existing request values when producing a conforming
+  JSON:API source pointer; a generic `Item` path does not do so.
 - `validationhttp.FromReport(report)` returns a problem document;
-  `WriteProblem` writes it with `application/problem+json`.
+  `WriteProblem` writes it with `application/problem+json`. This is an RFC
+  9457-inspired integration shape, not a complete compliance claim.
 
 These packages do not bind requests, choose routes, or own transport control
 flow. `validationhttp.Hook[T]` is an optional router integration seam.
+See the [specification decision register](specification-decisions.md) for the
+exact source pins, selected behavior, and compatibility boundaries.
 
 ## Config and service boundaries
 

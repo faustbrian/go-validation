@@ -85,7 +85,8 @@ func (p Path) String() string {
 	return result.String()
 }
 
-// JSONPointer renders the path using RFC 6901 escaping.
+// JSONPointer serializes typed segments as RFC 6901 reference tokens.
+// It does not evaluate the pointer or assign JSON Patch semantics to Item.
 func (p Path) JSONPointer() string {
 	var result strings.Builder
 	for _, segment := range p.segments {

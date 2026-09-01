@@ -10,5 +10,12 @@ declaration-order aggregation, deduplication identity, and transport field
 names. Application translations, custom codes, benchmark timings, and
 observation backend adapters are outside that contract.
 
+Standards-backed compatibility is governed by the
+[specification decision register](specification-decisions.md). A change to
+pointer serialization, transport field names, status mapping, package-owned
+extension data, or shared projection state requires a decision digest and
+compatibility review. Generic URL, email, UUID, hostname, and IP rules are
+package-defined syntactic profiles rather than external conformance claims.
+
 `api/baseline.txt` is the mechanical exported-API snapshot. It complements
 behavior tests; it does not prove semantic compatibility by itself.

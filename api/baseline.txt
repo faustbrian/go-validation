@@ -133,7 +133,8 @@ func (p Path) Append(segment Segment) Path
     Append returns a path copy with segment appended.
 
 func (p Path) JSONPointer() string
-    JSONPointer renders the path using RFC 6901 escaping.
+    JSONPointer serializes typed segments as RFC 6901 reference tokens. It does
+    not evaluate the pointer or assign JSON Patch semantics to Item.
 
 func (p Path) Segments() []Segment
     Segments returns a defensive copy of the path segments.
@@ -639,14 +640,15 @@ type Problem struct {
 	// Truncated reports whether findings were omitted by MaxViolations.
 	Truncated bool `json:"truncated,omitempty"`
 }
-    Problem is an RFC 9457-style validation problem.
+    Problem is RFC 9457-inspired, with package extensions; it is not complete.
 
 func FromReport(report validation.Report) Problem
     FromReport projects a report into an unprocessable-content problem.
 
 package validationjsonapi // import "github.com/faustbrian/go-validation/validationjsonapi"
 
-Package validationjsonapi projects reports into JSON:API error objects.
+Package validationjsonapi projects reports into JSON:API error objects. Severity
+and aggregation metadata are package-owned extensions.
 
 TYPES
 
@@ -712,6 +714,7 @@ type Observer interface {
 package validationrpc // import "github.com/faustbrian/go-validation/validationrpc"
 
 Package validationrpc projects reports into JSON-RPC invalid-params errors.
+The data member is a package-owned JSON-RPC 2.0 extension.
 
 TYPES
 

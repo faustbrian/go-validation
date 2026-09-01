@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "id": "VALIDATION-DEC-001",
+      "digests": [
+        "95c377bc8aff8aaba04b1e6add8daaf3f65c8823cb4ecb75ee0d56003220b80c"
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-002",
+      "digests": [
+        "16768491f285e40cd325a055fce9de7de4425f5d7e788d68895305c5019d8e66"
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-003",
+      "digests": [
+        "adb41196694f54e3eb093a6a94a67ee9d2c26baf2d1708f954fd1a5912e301cc"
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-004",
+      "digests": [
+        "ae1b9622b0ed448c4c2b91e2eb016db6882a82ac092d6b08668823a1e1fd6edf"
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-005",
+      "digests": [
+        "ad54e8018ffdec79c08070e8dcec8473d95b04d2b518ad7033f40e73f5bc08ca"
+      ]
+    },
+    {
+      "id": "VALIDATION-DEC-006",
+      "digests": [
+        "721619a7666ab86da9fd252bf8d05beb9b9568f9e25f0ac569e03a01dca14bc8"
+      ]
+    }
+  ]
+}
