@@ -8,7 +8,8 @@ versioning.
 ### Changed
 
 - Replace copied repository verification tooling with the checksum-pinned
-  `go-library-tools` v1.0.13 contract while preserving package behavior,
+  `go-library-tools` v1.2.0 contract so CI executes specification governance
+  with the released binary while preserving package behavior,
   public APIs, dependency checksums, and mutation evidence.
 
 ### Documentation
