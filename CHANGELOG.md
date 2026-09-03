@@ -7,12 +7,21 @@ versioning.
 
 ### Changed
 
+- Adopt the `go-library-tools` v1.3.0 schema-v2 cohesion contract and local
+  `make cohesion` gate without changing validation API or runtime behavior.
+- Pin reusable CI to the immutable v1.3.0 workflow and enforce cohesion
+  metadata in the repository's required CI contract.
+
 - Replace copied repository verification tooling with the checksum-pinned
   `go-library-tools` v1.2.0 contract so CI executes specification governance
   with the released binary while preserving package behavior,
   public APIs, dependency checksums, and mutation evidence.
 
 ### Documentation
+
+- Publish the module's family, capabilities, ownership, lifecycle, supported
+  environments, package selection, and delivery status, and link the README to
+  the immutable v1.3.0 ecosystem index and family guidance.
 
 - Add the [specification decision register](docs/specification-decisions.md)
   and conformance governance for bounded RFC 6901, RFC 9457, JSON:API 1.1,

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "repository": "github.com/faustbrian/go-validation",
   "go_version": "1.26.6",
   "modules": [
@@ -178,6 +178,108 @@
       "goal_files": [],
       "goal_status": "not-applicable",
       "goal_evidence": [],
+      "cohesion": {
+        "family": "foundations",
+        "secondary_capabilities": [
+          "configuration",
+          "data-encoding",
+          "http-and-service-edge",
+          "observability"
+        ],
+        "responsibility": "Provide deterministic typed application validation, bounded diagnostics, explicit presence semantics, reusable rules, and transport-neutral report composition.",
+        "non_goals": [
+          "Bind or decode requests, own DTOs, perform network deliverability checks, or provide schema-language validation.",
+          "Own application message catalogs, transport routing, persistence, retries, or service lifecycle.",
+          "Retain rejected values, panic payloads, unbounded diagnostic state, or process-global configuration."
+        ],
+        "public_package_identifier": "validation",
+        "primary_entry_packages": [
+          "github.com/faustbrian/go-validation"
+        ],
+        "package_selection": {
+          "github.com/faustbrian/go-validation": "Use for typed validators, explicit value presence, bounded reports, paths, violations, composition, and cancellation-aware async validation.",
+          "github.com/faustbrian/go-validation/rules": "Use for reusable deterministic presence, string, numeric, collection, temporal, cross-field, and primitive validators.",
+          "github.com/faustbrian/go-validation/structplan": "Use when startup-time typed or tagged field registration should compile into an immutable reusable validation plan.",
+          "github.com/faustbrian/go-validation/validationconfig": "Use to adapt typed validation to a narrow configuration Validate error contract.",
+          "github.com/faustbrian/go-validation/validationhttp": "Use to project bounded validation reports into router-neutral RFC 9457-inspired HTTP problem details.",
+          "github.com/faustbrian/go-validation/validationjsonapi": "Use to project bounded validation reports into JSON:API error documents.",
+          "github.com/faustbrian/go-validation/validationobserve": "Use to emit bounded non-sensitive validation observations without importing an observability backend.",
+          "github.com/faustbrian/go-validation/validationrpc": "Use to project bounded validation reports into JSON-RPC invalid-params errors.",
+          "github.com/faustbrian/go-validation/validationservice": "Use for cancellation-aware service-boundary validation hooks without depending on a service runtime.",
+          "github.com/faustbrian/go-validation/validationtest": "Use in tests for stable report assertions and validation conformance helpers.",
+          "github.com/faustbrian/go-validation/validationtext": "Use to apply caller-owned localized message catalogs without changing machine-readable validation identity."
+        },
+        "lifecycle_status": "active",
+        "maturity": "stable",
+        "construction_styles": [
+          "builder-compile",
+          "functional-options",
+          "plain-function",
+          "validated-value"
+        ],
+        "lifecycle_styles": [
+          "stateless"
+        ],
+        "ownership": {
+          "configuration": "caller",
+          "mutable_inputs": [
+            "borrow",
+            "copy"
+          ],
+          "runtime_resources": "none",
+          "background_work": "package"
+        },
+        "optional_owned_dependencies": [],
+        "adapters": [
+          "github.com/faustbrian/go-validation/validationconfig",
+          "github.com/faustbrian/go-validation/validationhttp",
+          "github.com/faustbrian/go-validation/validationjsonapi",
+          "github.com/faustbrian/go-validation/validationobserve",
+          "github.com/faustbrian/go-validation/validationrpc",
+          "github.com/faustbrian/go-validation/validationservice",
+          "github.com/faustbrian/go-validation/validationtext"
+        ],
+        "companions": [
+          "github.com/faustbrian/go-validation/rules",
+          "github.com/faustbrian/go-validation/structplan",
+          "github.com/faustbrian/go-validation/validationtest"
+        ],
+        "supported_go": {
+          "minimum": "1.26.6",
+          "tested": [
+            "1.26.6"
+          ]
+        },
+        "supported_platforms": [
+          "portable-go"
+        ],
+        "supported_backends": [],
+        "supported_protocols": [
+          "json-api",
+          "json-pointer",
+          "json-rpc",
+          "problem-details"
+        ],
+        "documentation": {
+          "readme": "README.md",
+          "api": "docs/api.md",
+          "adoption": "docs/adoption.md",
+          "security": "docs/security.md",
+          "compatibility": "docs/compatibility.md",
+          "performance": "docs/performance.md",
+          "examples": "docs/guides.md",
+          "faq": "docs/faq.md",
+          "changelog": "CHANGELOG.md",
+          "pkg_go_dev": "https://pkg.go.dev/github.com/faustbrian/go-validation",
+          "ecosystem_index": "https://github.com/faustbrian/go-library-tools/blob/v1.3.0/docs/ecosystem/README.md"
+        },
+        "known_good_compatibility_sets": [],
+        "delivery": {
+          "implementation": "not-started",
+          "hardening": "not-started",
+          "release": "not-started"
+        }
+      },
       "gates": {
         "api_compatibility": true,
         "benchmarks": true,
