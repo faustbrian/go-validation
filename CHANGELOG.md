@@ -12,6 +12,10 @@ versioning.
 - Pin reusable CI to the immutable v1.3.0 workflow and enforce cohesion
   metadata in the repository's required CI contract.
 
+- Upgrade the checksum-pinned CLI and immutable shared workflow to
+  `go-library-tools` v1.4.0, add online specification governance to local
+  `make ci`, and preserve the validation API and runtime behavior.
+
 - Replace copied repository verification tooling with the checksum-pinned
   `go-library-tools` v1.2.0 contract so CI executes specification governance
   with the released binary while preserving package behavior,
@@ -22,6 +26,8 @@ versioning.
 - Publish the module's family, capabilities, ownership, lifecycle, supported
   environments, package selection, and delivery status, and link the README to
   the immutable v1.3.0 ecosystem index and family guidance.
+- Advance ecosystem and Foundations family guidance to the immutable v1.4.0
+  documentation release.
 
 - Add the [specification decision register](docs/specification-decisions.md)
   and conformance governance for bounded RFC 6901, RFC 9457, JSON:API 1.1,
