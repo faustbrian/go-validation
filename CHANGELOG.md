@@ -5,6 +5,8 @@ versioning.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-06
+
 ### Added
 
 - Add immutable cancellation and deadline outcomes to `Report`, including
@@ -124,5 +126,6 @@ versioning.
 - A versioned six-target fuzz-corpus inventory and 90/90 mutation evidence
   spanning every standard-rule family and all hardening-critical boundaries.
 
-[Unreleased]: https://github.com/faustbrian/go-validation/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/faustbrian/go-validation/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/faustbrian/go-validation/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/faustbrian/go-validation/releases/tag/v1.0.0
