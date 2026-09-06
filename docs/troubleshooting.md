@@ -54,6 +54,10 @@ even when the retained finding is only a warning.
 
 Inspect `context.Context` cancellation/deadline and
 `MaxCustomConcurrency`. Already-running validators must honor cancellation.
+Use `errors.Is(report.Err(), context.Canceled)` or
+`errors.Is(report.Err(), context.DeadlineExceeded)` to distinguish terminal
+work from invalid input. Completed findings remain available through
+`*validation.ContextError`; do not use `Report.Empty()` as a completion check.
 
 ## Coverage is 99.9%
 

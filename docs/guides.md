@@ -52,8 +52,10 @@ paths. This prevents reflective lookup from reading the wrong field.
 Implement `AsyncValidator[T]` for database, network, or queue checks. Call
 `AsyncAll(ctx, validationContext, value, validators...)`; it runs no more than
 `MaxCustomConcurrency` validators concurrently, stops scheduling after
-cancellation, and merges completed results in declaration order. Validators
-already running must honor `context.Context`. Never hide I/O in `Validator[T]`.
+cancellation, joins admitted work, and merges completed results in declaration
+order. A callback-carried terminal does not cancel the shared caller or stop
+admission while that caller remains active. Validators already running must
+honor `context.Context`. Never hide I/O in `Validator[T]`.
 
 ## Errors
 
@@ -63,6 +65,24 @@ if err := report.Err(); errors.Is(err, validation.ErrInvalid) {
 	if errors.As(err, &invalid) { /* inspect invalid.Report() */ }
 }
 ```
+
+Context termination has error-string precedence without erasing completed
+findings:
+
+```go
+if err := report.Err(); err != nil {
+	if errors.Is(err, context.Canceled) ||
+		errors.Is(err, context.DeadlineExceeded) {
+		return err // route through ordinary operation cancellation handling
+	}
+	if errors.Is(err, validation.ErrInvalid) {
+		// Project findings only after context termination has been excluded.
+	}
+}
+```
+
+`Report.Empty()` and `Report.HasErrors()` remain findings-only queries; neither
+is a complete success predicate for context-aware work.
 
 Default formatting exposes only path, code, counts, and truncation. Causes and
 parameters are available only through explicit accessors.
@@ -75,27 +95,31 @@ messages remain empty. Translation cannot replace codes or paths.
 
 ## JSON-RPC, JSON:API, and HTTP
 
-- `validationrpc.InvalidParams(report)` returns code `-32602` with ordered data,
+- `validationjsonrpc.InvalidParams(report)` from `adapters/jsonrpc` returns code
+  `-32602` with ordered data,
   truncation, and report-level blocking state. Its `data` shape is package
   policy, not JSON-RPC-defined data.
-- `validationjsonapi.Errors(report)` returns a document with error severity,
+- `validationjsonapi.Errors(report)` from `adapters/jsonapi` returns a document
+  with error severity,
   source pointers, truncation, and report-level blocking state. Severity and
   aggregation metadata are package-owned JSON:API extensions. Callers must use
   paths that identify existing request values when producing a conforming
   JSON:API source pointer; a generic `Item` path does not do so.
-- `validationhttp.FromReport(report)` returns a problem document;
+- `validationhttp.FromReport(report)` from `adapters/http` returns a problem document;
   `WriteProblem` writes it with `application/problem+json`. This is an RFC
   9457-inspired integration shape, not a complete compliance claim.
 
 These packages do not bind requests, choose routes, or own transport control
-flow. `validationhttp.Hook[T]` is an optional router integration seam.
+flow. Applications must route `ContextError` before projecting findings.
+`validationhttp.Hook[T]` is an optional router integration seam.
 See the [specification decision register](specification-decisions.md) for the
 exact source pins, selected behavior, and compatibility boundaries.
 
 ## Config and service boundaries
 
-`validationconfig.CheckValue` implements the small `Validate() error` contract
-used by configuration loaders. `validationservice.Hook[T]` and `Chain` provide
+`validationconfig.CheckValue` from `adapters/config` implements the small
+`Validate() error` contract used by configuration loaders.
+`validationservice.Hook[T]` and `Chain` from `adapters/service` provide
 cancellation-aware boundary validation without depending on service types.
 
 ## Custom validators and observation

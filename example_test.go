@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	validation "github.com/faustbrian/go-validation"
+	validationjsonapi "github.com/faustbrian/go-validation/adapters/jsonapi"
 	"github.com/faustbrian/go-validation/rules"
 	"github.com/faustbrian/go-validation/structplan"
-	"github.com/faustbrian/go-validation/validationjsonapi"
 )
 
 func ExampleValidator() {
@@ -51,7 +51,7 @@ func ExampleAsyncAll() {
 		return validation.NewReport(ctx.Limits())
 	})
 	report := validation.AsyncAll(context.Background(), ctx, "user", check)
-	fmt.Println(report.Empty())
+	fmt.Println(report.Err() == nil)
 	// Output: true
 }
 
@@ -60,6 +60,20 @@ func ExampleInvalidError() {
 	err := rules.Email().Validate(ctx, "invalid").Err()
 	fmt.Println(errors.Is(err, validation.ErrInvalid))
 	// Output: true
+}
+
+func ExampleContextError() {
+	vctx, _ := validation.NewContext(validation.DefaultLimits())
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	report := validation.AsyncAll[int](ctx, vctx, 1)
+	var terminal *validation.ContextError
+	if err := report.Err(); errors.As(err, &terminal) {
+		fmt.Println(terminal.Error())
+	} else {
+		_ = validationjsonapi.Errors(report)
+	}
+	// Output: validation canceled
 }
 
 func ExampleErrors() {

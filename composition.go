@@ -20,7 +20,8 @@ func All[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 			}
 			current := validator.Validate(ctx, value)
 			report = report.Merge(current)
-			if mode == ShortCircuit && current.Err() != nil {
+			if current.ContextError() != nil ||
+				(mode == ShortCircuit && current.Err() != nil) {
 				break
 			}
 		}
@@ -34,12 +35,17 @@ func Any[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 	return ValidatorFunc[T](func(ctx Context, value T) Report {
 		failures := NewReport(ctx.Limits())
 		successes := NewReport(ctx.Limits())
+		partial := NewReport(ctx.Limits())
 		passed := false
 		for _, validator := range validators {
 			if validator == nil {
 				continue
 			}
 			current := validator.Validate(ctx, value)
+			partial = partial.Merge(current)
+			if current.ContextError() != nil {
+				return partial
+			}
 			if current.Err() == nil {
 				passed = true
 				successes = successes.Merge(current)
@@ -60,8 +66,14 @@ func Any[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 // Not passes only when validator fails.
 func Not[T any](validator Validator[T]) Validator[T] {
 	return ValidatorFunc[T](func(ctx Context, value T) Report {
-		if validator != nil && validator.Validate(ctx, value).Err() != nil {
-			return NewReport(ctx.Limits())
+		if validator != nil {
+			report := validator.Validate(ctx, value)
+			if report.ContextError() != nil {
+				return report
+			}
+			if report.Err() != nil {
+				return NewReport(ctx.Limits())
+			}
 		}
 		return NewReport(ctx.Limits()).Add(NewViolation(
 			ctx.Path(), "not", Error, nil, nil,

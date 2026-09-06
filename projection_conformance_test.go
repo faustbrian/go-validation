@@ -1,3 +1,5 @@
+//lint:file-ignore SA1019 Compatibility coverage requires the deprecated v1 paths.
+//nolint:staticcheck // Compatibility coverage requires the deprecated v1 paths.
 package validation_test
 
 import (

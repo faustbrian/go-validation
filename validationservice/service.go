@@ -1,4 +1,8 @@
 // Package validationservice provides transport-neutral service hook contracts.
+//
+// Deprecated: use github.com/faustbrian/go-validation/adapters/service. This
+// path remains supported for the longer of 180 days after successor public
+// availability and two published stable minor releases.
 package validationservice
 
 import (
@@ -22,22 +26,42 @@ func (hook Hook[T]) Validate(ctx context.Context,
 	return hook(ctx, validationContext, value)
 }
 
-// Chain evaluates service hooks in declaration order.
+// Chain evaluates service hooks in declaration order and preserves caller
+// cancellation or deadline as a terminal validation outcome.
 func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T] {
 	return Hook[T](func(ctx context.Context,
 		validationContext validation.Context, value T,
 	) validation.Report {
+		finish := func(report validation.Report) validation.Report {
+			terminal := validation.ContextReport(validationContext, ctx)
+			if terminal.ContextError() != nil {
+				return terminal.Merge(report)
+			}
+			return report
+		}
+		if terminal := validation.ContextReport(validationContext, ctx); terminal.ContextError() != nil {
+			return finish(terminal)
+		}
 		report := validation.NewReport(validationContext.Limits())
 		for _, validator := range validators {
 			if validator == nil {
 				continue
 			}
+			if terminal := validation.ContextReport(validationContext, ctx); terminal.ContextError() != nil {
+				return finish(terminal.Merge(report))
+			}
 			current := validator.Validate(ctx, validationContext, value)
 			report = report.Merge(current)
+			if terminal := validation.ContextReport(validationContext, ctx); terminal.ContextError() != nil {
+				return finish(terminal.Merge(report))
+			}
+			if current.ContextError() != nil {
+				break
+			}
 			if mode == validation.ShortCircuit && current.Err() != nil {
 				break
 			}
 		}
-		return report
+		return finish(report)
 	})
 }

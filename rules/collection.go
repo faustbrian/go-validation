@@ -69,7 +69,8 @@ func Items[T any](mode validation.Mode, validator validation.Validator[T]) valid
 		for index, value := range values {
 			current := validator.Validate(ctx.WithPath(validation.Index(index)), value)
 			report = report.Merge(current)
-			if mode == validation.ShortCircuit && current.Err() != nil {
+			if current.ContextError() != nil ||
+				(mode == validation.ShortCircuit && current.Err() != nil) {
 				break
 			}
 		}
@@ -109,7 +110,8 @@ func keysValidator[K cmp.Ordered, V any](
 		for _, key := range keys {
 			current := validator.Validate(ctx.WithPath(validation.Key(fmt.Sprint(key))), key)
 			report = report.Merge(current)
-			if mode == validation.ShortCircuit && current.Err() != nil {
+			if current.ContextError() != nil ||
+				(mode == validation.ShortCircuit && current.Err() != nil) {
 				break
 			}
 		}
@@ -152,7 +154,8 @@ func valuesValidator[K cmp.Ordered, V any](
 				ctx.WithPath(validation.Key(fmt.Sprint(key))), values[key],
 			)
 			report = report.Merge(current)
-			if mode == validation.ShortCircuit && current.Err() != nil {
+			if current.ContextError() != nil ||
+				(mode == validation.ShortCircuit && current.Err() != nil) {
 				break
 			}
 		}

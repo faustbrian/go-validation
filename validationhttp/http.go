@@ -1,4 +1,8 @@
 // Package validationhttp provides router-neutral HTTP report projection.
+//
+// Deprecated: use github.com/faustbrian/go-validation/adapters/http. This
+// path remains supported for the longer of 180 days after successor public
+// availability and two published stable minor releases.
 package validationhttp
 
 import (
@@ -26,7 +30,8 @@ type Error struct {
 	Severity   string            `json:"severity"`
 }
 
-// FromReport projects a report into an unprocessable-content problem.
+// FromReport projects validation findings into an unprocessable-content
+// problem. Applications must route context termination before calling it.
 func FromReport(report validation.Report) Problem {
 	violations := report.Violations()
 	errors := make([]Error, 0, len(violations))
