@@ -21,7 +21,10 @@ type Case[T any] struct {
 // RequireValid fails the test when report contains any violation.
 func RequireValid(t TestingT, report validation.Report) {
 	t.Helper()
-	if !report.Empty() {
+	if !requireComplete(t, report) {
+		return
+	}
+	if report.Err() != nil {
 		t.Fatalf("expected valid report, got %v", report)
 	}
 }
@@ -29,6 +32,9 @@ func RequireValid(t TestingT, report validation.Report) {
 // RequireCode fails the test unless report contains code.
 func RequireCode(t TestingT, report validation.Report, code string) {
 	t.Helper()
+	if !requireComplete(t, report) {
+		return
+	}
 	if !report.HasCode(code) {
 		t.Fatalf("expected violation code %q, got %v", code, report)
 	}
@@ -40,7 +46,11 @@ func RejectMutations[T any](t TestingT, ctx validation.Context,
 ) {
 	t.Helper()
 	for index, mutation := range mutations {
-		if report := validator.Validate(ctx, mutation); report.Err() == nil {
+		report := validator.Validate(ctx, mutation)
+		if !requireComplete(t, report) {
+			return
+		}
+		if report.Err() == nil {
 			t.Fatalf("mutation %d was accepted", index)
 		}
 	}
@@ -53,6 +63,9 @@ func Conformance[T any](t TestingT, ctx validation.Context,
 	t.Helper()
 	for _, current := range cases {
 		report := validator.Validate(ctx, current.Value)
+		if !requireComplete(t, report) {
+			return
+		}
 		if current.Valid {
 			if !report.Empty() {
 				t.Fatalf("case %q: expected valid report, got %v",
@@ -70,4 +83,12 @@ func Conformance[T any](t TestingT, ctx validation.Context,
 			}
 		}
 	}
+}
+
+func requireComplete(t TestingT, report validation.Report) bool {
+	if report.ContextError() == nil {
+		return true
+	}
+	t.Fatalf("validation did not complete: %v", report.Err())
+	return false
 }

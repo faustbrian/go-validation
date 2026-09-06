@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "repository": "github.com/faustbrian/go-validation",
+  "module": ".",
+  "package": "adapters/jsonapi",
+  "gate": "mutation",
+  "input_digest": "sha256:8c7a908263f67931487e3407a8c27fb8e29bd872dbf9720495534551c12c2dfa",
+  "verifier_digest": "sha256:9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+  "result": "passed",
+  "report_digest": "sha256:0b40453202c9dfa35bba5b92bc2866275be3840cd41a32a6445c739a5ffc2b73",
+  "environment": {
+    "CGO_ENABLED": "1",
+    "GOARCH": "arm64",
+    "GOOS": "darwin",
+    "GOVERSION": "go1.27.0",
+    "gremlins_binary_sha256": "sha256:6a2beddc477eb410f8a670b6c9049558563d3c4327498fe31604d31c773a959e"
+  },
+  "completed_at": "2026-09-06T00:39:01.673119Z"
+}

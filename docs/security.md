@@ -22,6 +22,7 @@ values. Paths are locations and can contain caller field/key text, so
 | Reflection panic/recursion | startup kind checks, inaccessible-field errors, cycle/depth detection |
 | Custom panic | function adapters contain panics; sync/async wrappers protect arbitrary implementations; payloads are discarded |
 | Hidden I/O/deadlock | I/O uses separate context-aware async contract |
+| Cancellation disclosure | reports retain only the standard terminal identity, never a request context or custom cancellation cause |
 
 ## Resource budgets
 
@@ -49,6 +50,8 @@ Custom validators remain application code and can violate the non-mutation
 rule; isolate them by ownership and review, not by assuming Go can enforce
 purity. `ValidatorFunc` and `AsyncValidatorFunc` contain panics automatically.
 Wrap other interface implementations with `IsolatePanics` before direct use.
+`AsyncAll` joins every admitted callback before return; a callback that ignores
+the caller context can still delay the caller and remains application-owned.
 
 ## Reporting vulnerabilities
 

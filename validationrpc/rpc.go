@@ -1,5 +1,9 @@
 // Package validationrpc projects reports into JSON-RPC invalid-params errors.
 // The data member is a package-owned JSON-RPC 2.0 extension.
+//
+// Deprecated: use github.com/faustbrian/go-validation/adapters/jsonrpc. This
+// path remains supported for the longer of 180 days after successor public
+// availability and two published stable minor releases.
 package validationrpc
 
 import validation "github.com/faustbrian/go-validation"
@@ -26,7 +30,8 @@ type Violation struct {
 	Severity   string            `json:"severity"`
 }
 
-// InvalidParams projects a report using the standard -32602 error code.
+// InvalidParams projects findings using the standard -32602 error code.
+// Applications must route context termination before calling it.
 func InvalidParams(report validation.Report) Error {
 	violations := report.Violations()
 	projected := make([]Violation, 0, len(violations))

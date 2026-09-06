@@ -21,3 +21,30 @@ closed as `invalid_violation`. Custom validator panics become
 `validator_panic`, without retaining the panic payload. Application message
 catalog output is bounded, control-free, valid UTF-8, and HTML-escaped; compare
 machine code and path rather than translated prose in compatibility fixtures.
+
+## Adopting terminal-aware validation and target adapters
+
+Upgrade to v1.1.0 before changing imports. Replace complete-success checks
+based on `Report.Empty()` or `!Report.HasErrors()` with `Report.Err() == nil`
+where validation can observe a caller context. Classify cancellation and
+deadlines with `errors.Is`; use `errors.As` with `*validation.ContextError` to
+inspect an immutable partial report. A partial terminal report can also match
+`validation.ErrInvalid` and expose `*validation.InvalidError`.
+
+After the public version resolves without `replace` or `go.work`, imports may
+move independently:
+
+| Legacy path | Successor path |
+| --- | --- |
+| `validationconfig` | `adapters/config` |
+| `validationhttp` | `adapters/http` |
+| `validationjsonapi` | `adapters/jsonapi` |
+| `validationrpc` | `adapters/jsonrpc` |
+| `validationservice` | `adapters/service` |
+
+Successor named types deliberately have their own package identity. Do not
+rely on assignment compatibility between legacy and successor named types;
+migrate one integration boundary at a time. Legacy paths remain supported for
+the longer of 180 days after successor public availability and two published
+stable minor releases. Rolling back an import migration does not restore the
+old success-equivalent cancellation behavior.

@@ -10,6 +10,14 @@ declaration-order aggregation, deduplication identity, and transport field
 names. Application translations, custom codes, benchmark timings, and
 observation backend adapters are outside that contract.
 
+v1.1.0 additively introduces terminal cancellation/deadline state and five
+target-oriented adapter paths. Existing declarations and signatures remain.
+The intentional behavioral correction is that `AsyncAll` and service `Chain`
+no longer return success-equivalent reports after observing caller context
+termination. Legacy and successor transport projections retain their existing
+validation-finding shapes; applications route terminal outcomes before using
+those projections.
+
 Standards-backed compatibility is governed by the
 [specification decision register](specification-decisions.md). A change to
 pointer serialization, transport field names, status mapping, package-owned

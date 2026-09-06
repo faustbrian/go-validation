@@ -1,4 +1,8 @@
 // Package validationconfig adapts typed validators to a small config contract.
+//
+// Deprecated: use github.com/faustbrian/go-validation/adapters/config. This
+// path remains supported for the longer of 180 days after successor public
+// availability and two published stable minor releases.
 package validationconfig
 
 import validation "github.com/faustbrian/go-validation"
@@ -22,7 +26,8 @@ func CheckValue[T any](value T, ctx validation.Context,
 	return Check[T]{value: value, context: ctx, validator: validator}
 }
 
-// Validate returns the typed invalid error when validation fails.
+// Validate returns the report error when validation does not complete or the
+// value is invalid.
 func (check Check[T]) Validate() error {
 	return check.validator.Validate(check.context, check.value).Err()
 }

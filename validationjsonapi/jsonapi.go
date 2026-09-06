@@ -1,5 +1,9 @@
 // Package validationjsonapi projects reports into JSON:API error objects.
 // Severity and aggregation metadata are package-owned extensions.
+//
+// Deprecated: use github.com/faustbrian/go-validation/adapters/jsonapi. This
+// path remains supported for the longer of 180 days after successor public
+// availability and two published stable minor releases.
 package validationjsonapi
 
 import validation "github.com/faustbrian/go-validation"
@@ -35,7 +39,8 @@ type Source struct {
 	Pointer string `json:"pointer"`
 }
 
-// Errors projects report findings in their deterministic order.
+// Errors projects report findings in their deterministic order. Applications
+// must route context termination before calling it.
 func Errors(report validation.Report) Document {
 	violations := report.Violations()
 	projected := make([]Error, 0, len(violations))

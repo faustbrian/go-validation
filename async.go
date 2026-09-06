@@ -39,13 +39,11 @@ func IsolateAsyncPanics[T any](validator AsyncValidator[T]) AsyncValidator[T] {
 func AsyncAll[T any](ctx context.Context, validationContext Context, value T,
 	validators ...AsyncValidator[T],
 ) Report {
+	if terminal := ContextReport(validationContext, ctx); terminal.ContextError() != nil {
+		return terminal
+	}
 	if len(validators) == 0 {
 		return NewReport(validationContext.Limits())
-	}
-	select {
-	case <-ctx.Done():
-		return NewReport(validationContext.Limits())
-	default:
 	}
 	workerCount := min(validationContext.Limits().MaxCustomConcurrency,
 		len(validators))
@@ -69,22 +67,26 @@ func AsyncAll[T any](ctx context.Context, validationContext Context, value T,
 			}
 		}()
 	}
-	for index, validator := range validators {
-		select {
-		case jobs <- job{index: index, validator: validator}:
-		case <-ctx.Done():
-			close(jobs)
-			for range workerCount {
-				<-done
+	callerTerminal := func() Report {
+		for index, validator := range validators {
+			select {
+			case jobs <- job{index: index, validator: validator}:
+			case <-ctx.Done():
+				return ContextReport(validationContext, ctx)
 			}
-			return mergeAsyncReports(validationContext, results)
 		}
-	}
+		return NewReport(validationContext.Limits())
+	}()
 	close(jobs)
 	for range workerCount {
 		<-done
 	}
-	return mergeAsyncReports(validationContext, results)
+	merged := mergeAsyncReports(validationContext, results)
+	callerTerminal = callerTerminal.Merge(ContextReport(validationContext, ctx))
+	if callerTerminal.ContextError() != nil {
+		return callerTerminal.Merge(merged)
+	}
+	return merged
 }
 
 func mergeAsyncReports(validationContext Context, reports []Report) Report {

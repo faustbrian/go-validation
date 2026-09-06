@@ -66,6 +66,20 @@ func (c Context) Path() Path
 func (c Context) WithPath(segment Segment) Context
     WithPath returns a copy with segment appended.
 
+type ContextError struct {
+	// Has unexported fields.
+}
+    ContextError is the structured terminal error returned by Report.Err.
+
+func (e *ContextError) Error() string
+    Error returns a bounded context-terminal summary.
+
+func (e *ContextError) Report() Report
+    Report returns the immutable partial validation report.
+
+func (e *ContextError) Unwrap() []error
+    Unwrap exposes stable context and validation error identities.
+
 type ContextOption func(*contextConfig)
     ContextOption configures NewContext.
 
@@ -156,7 +170,8 @@ const (
 type Report struct {
 	// Has unexported fields.
 }
-    Report is an immutable, ordered, deduplicated collection of violations.
+    Report is an immutable, ordered, deduplicated collection of violations with
+    an optional context-terminal state.
 
 func AsyncAll[T any](ctx context.Context, validationContext Context, value T,
 	validators ...AsyncValidator[T],
@@ -165,17 +180,25 @@ func AsyncAll[T any](ctx context.Context, validationContext Context, value T,
     merges their reports in declaration order. Cancellation stops unscheduled
     work; validators already running remain responsible for honoring ctx.
 
+func ContextReport(validationContext Context, ctx context.Context) Report
+    ContextReport returns an empty report that snapshots ctx.Err(). An active
+    context produces no terminal state.
+
 func NewReport(limits Limits) Report
     NewReport creates an empty report governed by limits.
 
 func (r Report) Add(violation Violation) Report
     Add returns a report with a violation appended if it is not a duplicate.
 
+func (r Report) ContextError() error
+    ContextError reports the captured context terminal identity, if any.
+
 func (r Report) Empty() bool
     Empty reports whether no violations were retained.
 
 func (r Report) Err() error
-    Err returns a typed error if the report contains a blocking violation.
+    Err returns a typed error if validation did not complete or contains a
+    blocking violation.
 
 func (r Report) HasCode(code string) bool
     HasCode reports whether a retained violation has code.
@@ -333,6 +356,170 @@ func (v Violation) Severity() Severity
 
 func (v Violation) String() string
     String deliberately excludes parameters, causes, and rejected values.
+
+package validationconfig // import "github.com/faustbrian/go-validation/adapters/config"
+
+Package validationconfig adapts typed validators to a small configuration
+validation contract.
+
+TYPES
+
+type Check[T any] struct {
+	// Has unexported fields.
+}
+    Check binds a value, immutable context, and typed validator.
+
+func CheckValue[T any](value T, ctx validation.Context,
+	validator validation.Validator[T],
+) Check[T]
+    CheckValue constructs a reusable configuration validation contract.
+
+func (check Check[T]) Validate() error
+    Validate returns the report error when validation does not complete or the
+    value is invalid.
+
+type Validator interface {
+	Validate() error
+}
+    Validator is the minimal validation contract used by configuration loaders.
+
+package validationhttp // import "github.com/faustbrian/go-validation/adapters/http"
+
+Package validationhttp provides router-neutral HTTP report projection.
+
+FUNCTIONS
+
+func WriteProblem(writer http.ResponseWriter, problem Problem) error
+    WriteProblem writes a problem without depending on a router.
+
+
+TYPES
+
+type Error struct {
+	Path       string            `json:"path"`
+	Code       string            `json:"code"`
+	Parameters map[string]string `json:"parameters,omitempty"`
+	Severity   string            `json:"severity"`
+}
+    Error is one safe HTTP validation finding.
+
+type Hook[T any] func(*http.Request, T) validation.Report
+    Hook is a transport integration seam that does not own routing or binding.
+
+func (hook Hook[T]) Validate(request *http.Request, value T) validation.Report
+    Validate invokes the application-supplied request validation hook.
+
+type Problem struct {
+	Type   string  `json:"type"`
+	Title  string  `json:"title"`
+	Status int     `json:"status"`
+	Errors []Error `json:"errors"`
+	// Truncated reports whether findings were omitted by MaxViolations.
+	Truncated bool `json:"truncated,omitempty"`
+}
+    Problem is RFC 9457-inspired, with package extensions; it is not complete.
+
+func FromReport(report validation.Report) Problem
+    FromReport projects validation findings into an unprocessable-content
+    problem. Applications must route context termination before calling it.
+
+package validationjsonapi // import "github.com/faustbrian/go-validation/adapters/jsonapi"
+
+Package validationjsonapi projects reports into JSON:API error objects. Severity
+and aggregation metadata are package-owned extensions.
+
+TYPES
+
+type Document struct {
+	Errors []Error      `json:"errors"`
+	Meta   DocumentMeta `json:"meta"`
+}
+    Document is a JSON:API error document with report-level metadata.
+
+func Errors(report validation.Report) Document
+    Errors projects report findings in their deterministic order. Applications
+    must route context termination before calling it.
+
+type DocumentMeta struct {
+	Truncated bool `json:"truncated"`
+	HasErrors bool `json:"has_errors"`
+}
+    DocumentMeta preserves aggregation state.
+
+type Error struct {
+	Status string    `json:"status"`
+	Code   string    `json:"code"`
+	Source Source    `json:"source"`
+	Meta   ErrorMeta `json:"meta"`
+}
+    Error is a JSON:API validation error object.
+
+type ErrorMeta struct {
+	Parameters map[string]string `json:"parameters,omitempty"`
+	Severity   string            `json:"severity"`
+}
+    ErrorMeta preserves safe rule parameters and severity.
+
+type Source struct {
+	Pointer string `json:"pointer"`
+}
+    Source identifies the invalid document location.
+
+package validationjsonrpc // import "github.com/faustbrian/go-validation/adapters/jsonrpc"
+
+Package validationjsonrpc projects reports into JSON-RPC invalid-params errors.
+The data member is a package-owned JSON-RPC 2.0 extension.
+
+TYPES
+
+type Data struct {
+	Violations []Violation `json:"violations"`
+	Truncated  bool        `json:"truncated,omitempty"`
+	HasErrors  bool        `json:"has_errors"`
+}
+    Data is the stable machine-readable invalid-params payload.
+
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    Data   `json:"data"`
+}
+    Error is a JSON-RPC error object.
+
+func InvalidParams(report validation.Report) Error
+    InvalidParams projects findings using the standard -32602 error code.
+    Applications must route context termination before calling it.
+
+type Violation struct {
+	Path       string            `json:"path"`
+	Code       string            `json:"code"`
+	Parameters map[string]string `json:"parameters,omitempty"`
+	Severity   string            `json:"severity"`
+}
+    Violation is a safe JSON-RPC validation finding.
+
+package validationservice // import "github.com/faustbrian/go-validation/adapters/service"
+
+Package validationservice provides transport-neutral service hook contracts.
+
+TYPES
+
+type Hook[T any] func(context.Context, validation.Context, T) validation.Report
+    Hook adapts a service-boundary function to Validator.
+
+func (hook Hook[T]) Validate(ctx context.Context,
+	validationContext validation.Context, value T,
+) validation.Report
+    Validate invokes the service hook.
+
+type Validator[T any] interface {
+	Validate(context.Context, validation.Context, T) validation.Report
+}
+    Validator is a cancellation-aware service-boundary validation contract.
+
+func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
+    Chain evaluates service hooks in declaration order and preserves caller
+    cancellation or deadline as a terminal validation outcome.
 
 package rules // import "github.com/faustbrian/go-validation/rules"
 
@@ -586,6 +773,10 @@ package validationconfig // import "github.com/faustbrian/go-validation/validati
 
 Package validationconfig adapts typed validators to a small config contract.
 
+Deprecated: use github.com/faustbrian/go-validation/adapters/config. This path
+remains supported for the longer of 180 days after successor public availability
+and two published stable minor releases.
+
 TYPES
 
 type Check[T any] struct {
@@ -599,7 +790,8 @@ func CheckValue[T any](value T, ctx validation.Context,
     CheckValue constructs a reusable configuration validation contract.
 
 func (check Check[T]) Validate() error
-    Validate returns the typed invalid error when validation fails.
+    Validate returns the report error when validation does not complete or the
+    value is invalid.
 
 type Validator interface {
 	Validate() error
@@ -609,6 +801,10 @@ type Validator interface {
 package validationhttp // import "github.com/faustbrian/go-validation/validationhttp"
 
 Package validationhttp provides router-neutral HTTP report projection.
+
+Deprecated: use github.com/faustbrian/go-validation/adapters/http. This path
+remains supported for the longer of 180 days after successor public availability
+and two published stable minor releases.
 
 FUNCTIONS
 
@@ -643,12 +839,17 @@ type Problem struct {
     Problem is RFC 9457-inspired, with package extensions; it is not complete.
 
 func FromReport(report validation.Report) Problem
-    FromReport projects a report into an unprocessable-content problem.
+    FromReport projects validation findings into an unprocessable-content
+    problem. Applications must route context termination before calling it.
 
 package validationjsonapi // import "github.com/faustbrian/go-validation/validationjsonapi"
 
 Package validationjsonapi projects reports into JSON:API error objects. Severity
 and aggregation metadata are package-owned extensions.
+
+Deprecated: use github.com/faustbrian/go-validation/adapters/jsonapi. This path
+remains supported for the longer of 180 days after successor public availability
+and two published stable minor releases.
 
 TYPES
 
@@ -659,7 +860,8 @@ type Document struct {
     Document is a JSON:API error document with report-level metadata.
 
 func Errors(report validation.Report) Document
-    Errors projects report findings in their deterministic order.
+    Errors projects report findings in their deterministic order. Applications
+    must route context termination before calling it.
 
 type DocumentMeta struct {
 	Truncated bool `json:"truncated"`
@@ -716,6 +918,10 @@ package validationrpc // import "github.com/faustbrian/go-validation/validationr
 Package validationrpc projects reports into JSON-RPC invalid-params errors.
 The data member is a package-owned JSON-RPC 2.0 extension.
 
+Deprecated: use github.com/faustbrian/go-validation/adapters/jsonrpc. This path
+remains supported for the longer of 180 days after successor public availability
+and two published stable minor releases.
+
 TYPES
 
 type Data struct {
@@ -733,7 +939,8 @@ type Error struct {
     Error is a JSON-RPC error object.
 
 func InvalidParams(report validation.Report) Error
-    InvalidParams projects a report using the standard -32602 error code.
+    InvalidParams projects findings using the standard -32602 error code.
+    Applications must route context termination before calling it.
 
 type Violation struct {
 	Path       string            `json:"path"`
@@ -746,6 +953,10 @@ type Violation struct {
 package validationservice // import "github.com/faustbrian/go-validation/validationservice"
 
 Package validationservice provides transport-neutral service hook contracts.
+
+Deprecated: use github.com/faustbrian/go-validation/adapters/service. This path
+remains supported for the longer of 180 days after successor public availability
+and two published stable minor releases.
 
 TYPES
 
@@ -763,7 +974,8 @@ type Validator[T any] interface {
     Validator is a cancellation-aware service-boundary validation contract.
 
 func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
-    Chain evaluates service hooks in declaration order.
+    Chain evaluates service hooks in declaration order and preserves caller
+    cancellation or deadline as a terminal validation outcome.
 
 package validationtest // import "github.com/faustbrian/go-validation/validationtest"
 

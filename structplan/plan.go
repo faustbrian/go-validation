@@ -88,7 +88,11 @@ func (builder *Builder[T]) Compile() (*Plan[T], error) {
 func (plan *Plan[T]) Validate(ctx validation.Context, value T) validation.Report {
 	report := validation.NewReport(ctx.Limits())
 	for _, field := range plan.fields {
-		report = report.Merge(field(ctx, value))
+		current := field(ctx, value)
+		report = report.Merge(current)
+		if current.ContextError() != nil {
+			break
+		}
 	}
 	return report
 }

@@ -27,6 +27,11 @@ No rule coerces, defaults, trims, normalizes, or replaces a value.
 `ShortCircuit` stops at the first decisive result. `CollectAll` evaluates every
 relevant child. Warning-only reports are non-blocking.
 
+A carried cancellation or deadline terminal stops every compositor regardless
+of mode. `Any` returns the complete ordered partial accumulator, `Not` does not
+negate an incomplete result, and collection and typed-plan traversal stop after
+the terminal child while retaining completed findings.
+
 ## Paths
 
 Field segments render as `profile.name`, indexes as `items[2]`, map keys as
@@ -46,4 +51,6 @@ affect identity.
 Once `MaxViolations` is reached, additional findings are omitted and
 `Truncated` becomes true. `HasErrors` and `Err` remain blocking if any omitted
 finding was an error. Merge retains source order, truncation, and blocking
-state.
+state. Context terminal state consumes no finding capacity and uses
+receiver-first precedence during merge. `Empty` and `HasErrors` describe
+findings only; `Err() == nil` is the complete success predicate.

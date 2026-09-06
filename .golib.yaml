@@ -23,6 +23,11 @@ api:
       path: api/baseline.txt
       packages:
         - .
+        - ./adapters/config
+        - ./adapters/http
+        - ./adapters/jsonapi
+        - ./adapters/jsonrpc
+        - ./adapters/service
         - ./rules
         - ./structplan
         - ./validationconfig
@@ -41,10 +46,13 @@ operations:
       - type: go-test
         packages:
           - .
+          - ./adapters/http
+          - ./adapters/jsonapi
+          - ./adapters/jsonrpc
           - ./validationhttp
           - ./validationjsonapi
           - ./validationrpc
-        run: '^TestPathPreservesTypedSegmentsAndEscapesPointers$|^TestTransportProjectionsPreserveConformanceAndEscapeLocations$|^TestProblemAndWriterAreRouterNeutralAndEscaped$|^TestWarningProblemPreservesSeverityAndTruncation$|^TestErrorsUseJSONPointersAndStableCodes$|^TestWarningsAndTruncationRemainMachineReadable$|^TestTruncatedBlockingStateSurvivesWarningRetention$|^TestInvalidParamsPreservesSafeStableData$|^TestInvalidParamsProjectsWarningsAndTruncation$'
+        run: '^TestPathPreservesTypedSegmentsAndEscapesPointers$|^TestTransportProjectionsPreserveConformanceAndEscapeLocations$|^TestProblemAndWriterAreRouterNeutralAndEscaped$|^TestProblemWriterAndHookPreserveLegacyBehavior$|^TestWarningProblemPreservesSeverityAndTruncation$|^TestWarningProblemIsSuccessful$|^TestErrorsUseJSONPointersAndStableCodes$|^TestErrorsPreservePathsSeverityAndHiddenBlockingState$|^TestErrorsProjectBlockingSeverity$|^TestWarningsAndTruncationRemainMachineReadable$|^TestTruncatedBlockingStateSurvivesWarningRetention$|^TestInvalidParamsPreservesSafeStableData$|^TestInvalidParamsProjectsWarningsAndTruncation$'
         count: 1
         timeout: 20m
   - module: .
@@ -84,6 +92,11 @@ operations:
         timeout: 2m
       - type: go-test
         packages: [./validationjsonapi]
+        fuzz: '^FuzzProjectionPaths$'
+        budget: 10000x
+        timeout: 2m
+      - type: go-test
+        packages: [./adapters/jsonapi]
         fuzz: '^FuzzProjectionPaths$'
         budget: 10000x
         timeout: 2m

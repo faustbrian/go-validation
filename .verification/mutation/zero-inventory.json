@@ -5,9 +5,17 @@
       "gremlins_verifier_sha256": "9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
       "gremlins_version": "v0.6.0",
       "module_directory": ".",
+      "package_directory": "adapters/config",
+      "reason": "The package only constructs a generic value and delegates validation; the complete enabled Gremlins operator set discovers no viable transformations.",
+      "source_digest": "9aa5beb06c4446aae7951179deb4212558a66847cc3ee0c7f4aef72d2641ab53"
+    },
+    {
+      "gremlins_verifier_sha256": "9a9499ff68a8dfd49a0be7995590297a8ee563a1aa226bfd8b9361dc53058108",
+      "gremlins_version": "v0.6.0",
+      "module_directory": ".",
       "package_directory": "validationconfig",
       "reason": "The package only constructs a generic value and delegates validation; the complete enabled Gremlins operator set discovers no viable transformations.",
-      "source_digest": "665dba39257b696d385ec366eb1fc88f79a1a91d1b973b9f38b4813905791b72"
+      "source_digest": "3eb54fef69344c1bda026cf9b70aa2d69987f57034adacd1b4038641b721481a"
     }
   ]
 }

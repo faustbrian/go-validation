@@ -55,6 +55,16 @@ Core validators never perform I/O. Use `AsyncValidator[T]` and `AsyncAll` for
 context-aware external checks. Reflection is optional and isolated in
 `structplan`; typed plans require no tags or registry.
 
+For context-aware validation, use `report.Err() == nil` as the complete
+success predicate. Cancellation and deadlines are terminal outcomes rather
+than validation findings, so a terminal report can still be `Empty()` and can
+retain completed warnings or errors.
+
+Target-oriented integrations live under `adapters/config`, `adapters/http`,
+`adapters/jsonapi`, `adapters/jsonrpc`, and `adapters/service`. The original
+`validationconfig`, `validationhttp`, `validationjsonapi`, `validationrpc`, and
+`validationservice` paths remain compatible during their deprecation period.
+
 ## Documentation
 
 - [Documentation index](docs/README.md)

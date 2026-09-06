@@ -5,7 +5,23 @@ versioning.
 
 ## [Unreleased]
 
+### Added
+
+- Add immutable cancellation and deadline outcomes to `Report`, including
+  `ContextReport`, `Report.ContextError`, and structured error projections that
+  preserve partial validation findings.
+- Add target-oriented `adapters/config`, `adapters/http`, `adapters/jsonapi`,
+  `adapters/jsonrpc`, and `adapters/service` packages while retaining the v1
+  integration paths.
+
 ### Changed
+
+- Make `AsyncAll`, validation compositors, collection and struct-plan
+  traversal, test helpers, and service chains preserve terminal context
+  identity, ordered partial findings, and bounded admitted-work ownership.
+- Deprecate the five original integration paths in favor of their additive
+  target-oriented successors; retain them for the longer of 180 days after
+  successor availability and two stable minor releases.
 
 - Adopt the `go-library-tools` v1.3.0 schema-v2 cohesion contract and local
   `make cohesion` gate without changing validation API or runtime behavior.
