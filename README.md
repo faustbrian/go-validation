@@ -10,7 +10,7 @@
 [![Go](https://img.shields.io/badge/go-1.27.0-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-`validation` is a typed, transport-neutral validation package for Go 1.26
+`validation` is a typed, transport-neutral validation package for Go 1.27
 and later. Ordinary functions and `Validator[T]` are the primary API. Reports
 retain stable paths and rule codes without retaining rejected values.
 

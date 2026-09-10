@@ -6,7 +6,7 @@
     {
       "directory": ".",
       "module_path": "github.com/faustbrian/go-validation",
-      "go_version": "1.26.6",
+      "go_version": "1.27.0",
       "packages": [
         {
           "module_directory": ".",
@@ -201,7 +201,7 @@
           "build_tags": []
         }
       ],
-      "purpose": "`validation` is a typed, transport-neutral validation package for Go 1.26 and later. Ordinary functions and `Validator[T]` are the primary API. Reports retain stable paths and rule codes without retaining rejected values.",
+      "purpose": "`validation` is a typed, transport-neutral validation package for Go 1.27 and later. Ordinary functions and `Validator[T]` are the primary API. Reports retain stable paths and rule codes without retaining rejected values.",
       "lifecycle": "stable",
       "kind": "public library",
       "releasable": true,
@@ -315,7 +315,7 @@
           "github.com/faustbrian/go-validation/validationtext"
         ],
         "supported_go": {
-          "minimum": "1.26.6",
+          "minimum": "1.27.0",
           "tested": [
             "1.27.0"
           ]
