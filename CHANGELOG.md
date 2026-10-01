@@ -5,6 +5,11 @@ versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- Keep reusable CI and its checked-out tooling on the same v1.8.4 source
+  while retaining the checksum-verified v1.4.0 CLI bootstrap.
+
 ## [1.1.0] - 2026-09-06
 
 ### Added
