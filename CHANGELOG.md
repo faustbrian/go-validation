@@ -5,7 +5,14 @@ versioning.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-01
+
 ### Changed
+
+- Require Go 1.27.0 instead of Go 1.26.6. Upgrade consumer toolchains
+  before adopting v1.2.0; validation APIs, runtime contracts, and wire
+  formats remain unchanged. The minor release signals the supported
+  toolchain transition without changing the public API.
 
 - Keep reusable CI and its checked-out tooling on the same v1.8.4 source
   while retaining the checksum-verified v1.4.0 CLI bootstrap.
@@ -131,6 +138,7 @@ versioning.
 - A versioned six-target fuzz-corpus inventory and 90/90 mutation evidence
   spanning every standard-rule family and all hardening-critical boundaries.
 
-[Unreleased]: https://github.com/faustbrian/go-validation/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/faustbrian/go-validation/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/faustbrian/go-validation/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/faustbrian/go-validation/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/faustbrian/go-validation/releases/tag/v1.0.0
