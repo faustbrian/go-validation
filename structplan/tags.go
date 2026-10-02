@@ -36,13 +36,13 @@ func CompileTags[T any](limits validation.Limits) (*TagPlan[T], error) {
 	}
 	typeOf := reflect.TypeFor[T]()
 	if typeOf.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("%w: root %s", ErrUnsupportedKind, typeOf.Kind())
+		return nil, privateConstructionError(fmt.Errorf("%w: root %s", ErrUnsupportedKind, typeOf.Kind()))
 	}
 	fields := make([]compiledField, 0)
 	visited := 0
 	if err := compileType(typeOf, nil, nil, 0, limits,
 		make(map[reflect.Type]bool), &visited, &fields); err != nil {
-		return nil, err
+		return nil, privateConstructionError(err)
 	}
 	return &TagPlan[T]{limits: limits, fields: fields}, nil
 }

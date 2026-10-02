@@ -1,5 +1,20 @@
 # Security model
 
+## Unreleased diagnostic change
+
+The upcoming major release changes the default error text returned by
+`rules.Pattern` and public `structplan` construction/tag compilation. These
+errors expose fixed categories rather than caller expressions, field names,
+type names, or rule identifiers. Valid matching and plan behavior are unchanged.
+Existing sentinel classification through `errors.Is` remains available, and
+`errors.As`/`errors.Unwrap` retain the original diagnostic causes for explicit
+trusted inspection. Those causes may contain private application configuration;
+do not render them into public logs, traces, or responses. Consumers must stop
+parsing default diagnostic text and use the structured classification instead.
+
+This is unreleased preparation, not a change to an already published v1
+artifact or a claim that the whole package family has completed security work.
+
 ## Trust boundaries
 
 Input values, object graphs, map keys, tags, custom validators, translation

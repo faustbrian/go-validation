@@ -5,6 +5,14 @@ versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- Prepare the next major release's private default diagnostics for pattern
+  compilation and struct-plan construction. Errors no longer print caller
+  expressions, field names, type names, or rule identifiers. Match stable
+  classifications with `errors.Is` and inspect original causes explicitly with
+  `errors.As` or `errors.Unwrap` instead of parsing default error text.
+
 ## [1.2.0] - 2026-10-01
 
 ### Changed

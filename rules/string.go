@@ -50,7 +50,7 @@ func Pattern(expression string,
 	}
 	compiled, err := regexp.Compile(expression)
 	if err != nil {
-		return nil, fmt.Errorf("compile validation pattern: %w", err)
+		return nil, &patternCompilationError{cause: fmt.Errorf("compile validation pattern: %w", err)}
 	}
 	return validation.ValidatorFunc[string](func(
 		ctx validation.Context, value string,
@@ -64,6 +64,14 @@ func Pattern(expression string,
 		return fail(ctx, "pattern", nil)
 	}), nil
 }
+
+// Compilation causes can contain the caller's expression. Keep the original
+// diagnostic available through explicit introspection, not default formatting.
+type patternCompilationError struct{ cause error }
+
+func (*patternCompilationError) Error() string { return "compile validation pattern" }
+
+func (err *patternCompilationError) Unwrap() error { return err.cause }
 
 // Prefix requires a literal prefix.
 func Prefix(prefix string) validation.Validator[string] {
