@@ -2,7 +2,7 @@
 // validation contract.
 package validationconfig
 
-import validation "github.com/faustbrian/go-validation"
+import validation "github.com/faustbrian/go-validation/v2"
 
 // Validator is the minimal validation contract used by configuration loaders.
 type Validator interface {

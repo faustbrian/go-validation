@@ -1,6 +1,6 @@
 // Package validationhttp provides router-neutral HTTP report projection.
 //
-// Deprecated: use github.com/faustbrian/go-validation/adapters/http. This
+// Deprecated: use github.com/faustbrian/go-validation/v2/adapters/http. This
 // path remains supported for the longer of 180 days after successor public
 // availability and two published stable minor releases.
 package validationhttp
@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/http"
 
-	validation "github.com/faustbrian/go-validation"
+	validation "github.com/faustbrian/go-validation/v2"
 )
 
 // Problem is RFC 9457-inspired, with package extensions; it is not complete.

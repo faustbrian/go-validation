@@ -3,7 +3,7 @@ package rules_test
 import (
 	"testing"
 
-	"github.com/faustbrian/go-validation/rules"
+	"github.com/faustbrian/go-validation/v2/rules"
 )
 
 func FuzzUnicodeAndMalformedPrimitives(f *testing.F) {

@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation"
-	"github.com/faustbrian/go-validation/rules"
-	"github.com/faustbrian/go-validation/structplan"
+	validation "github.com/faustbrian/go-validation/v2"
+	"github.com/faustbrian/go-validation/v2/rules"
+	"github.com/faustbrian/go-validation/v2/structplan"
 )
 
 func requirePrivateConstructionError(t *testing.T, err, category error, marker string) {

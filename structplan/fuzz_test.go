@@ -3,7 +3,7 @@ package structplan
 import (
 	"testing"
 
-	validation "github.com/faustbrian/go-validation"
+	validation "github.com/faustbrian/go-validation/v2"
 )
 
 type fuzzAlias string

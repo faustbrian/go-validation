@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation"
+	validation "github.com/faustbrian/go-validation/v2"
 )
 
 func FuzzPathAndReportSafety(f *testing.F) {

@@ -1,11 +1,11 @@
 // Package validationconfig adapts typed validators to a small config contract.
 //
-// Deprecated: use github.com/faustbrian/go-validation/adapters/config. This
+// Deprecated: use github.com/faustbrian/go-validation/v2/adapters/config. This
 // path remains supported for the longer of 180 days after successor public
 // availability and two published stable minor releases.
 package validationconfig
 
-import validation "github.com/faustbrian/go-validation"
+import validation "github.com/faustbrian/go-validation/v2"
 
 // Validator is the minimal validation contract used by configuration loaders.
 type Validator interface {

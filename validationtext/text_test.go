@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation"
-	"github.com/faustbrian/go-validation/validationtext"
+	validation "github.com/faustbrian/go-validation/v2"
+	"github.com/faustbrian/go-validation/v2/validationtext"
 )
 
 type catalog map[string]string

@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	validation "github.com/faustbrian/go-validation"
-	validationjsonapi "github.com/faustbrian/go-validation/adapters/jsonapi"
-	"github.com/faustbrian/go-validation/rules"
-	"github.com/faustbrian/go-validation/structplan"
+	validation "github.com/faustbrian/go-validation/v2"
+	validationjsonapi "github.com/faustbrian/go-validation/v2/adapters/jsonapi"
+	"github.com/faustbrian/go-validation/v2/rules"
+	"github.com/faustbrian/go-validation/v2/structplan"
 )
 
 func ExampleValidator() {
