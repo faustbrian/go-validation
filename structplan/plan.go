@@ -81,18 +81,16 @@ func (err *constructionError) Error() string { return err.category }
 func (err *constructionError) Unwrap() error { return err.cause }
 
 func privateConstructionError(cause error) error {
-	category := "validation plan construction failed"
 	for _, kind := range []error{
 		ErrDuplicateField, ErrUnknownRule, ErrDuplicateRule, ErrInvalidTag,
 		ErrCycle, ErrUnsupportedKind, ErrInvalidPlan,
 		validation.ErrLimitExceeded, validation.ErrInvalidLimit,
 	} {
 		if errors.Is(cause, kind) {
-			category = kind.Error()
-			break
+			return &constructionError{category: kind.Error(), cause: cause}
 		}
 	}
-	return &constructionError{category: category, cause: cause}
+	return &constructionError{category: "validation plan construction failed", cause: cause}
 }
 
 // Plan is an immutable reflection-free typed struct plan.

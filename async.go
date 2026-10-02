@@ -36,11 +36,16 @@ func IsolateAsyncPanics[T any](validator AsyncValidator[T]) AsyncValidator[T] {
 // AsyncAll executes context-aware validators with bounded concurrency and
 // merges their reports in declaration order. Cancellation stops unscheduled
 // work; validators already running remain responsible for honoring ctx.
+// After checking caller cancellation, total supplied positions (including nil)
+// must fit MaxCollectionSize before workers or result storage are allocated.
 func AsyncAll[T any](ctx context.Context, validationContext Context, value T,
 	validators ...AsyncValidator[T],
 ) Report {
 	if terminal := ContextReport(validationContext, ctx); terminal.ContextError() != nil {
 		return terminal
+	}
+	if len(validators) > validationContext.Limits().MaxCollectionSize {
+		return collectionLimitReport(validationContext)
 	}
 	if len(validators) == 0 {
 		return NewReport(validationContext.Limits())

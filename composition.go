@@ -10,9 +10,13 @@ const (
 	CollectAll
 )
 
-// All requires every validator to pass.
+// All requires every validator to pass. The supplied positions, including nil
+// entries, must fit Context.Limits().MaxCollectionSize before any invocation.
 func All[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 	return ValidatorFunc[T](func(ctx Context, value T) Report {
+		if len(validators) > ctx.Limits().MaxCollectionSize {
+			return collectionLimitReport(ctx)
+		}
 		report := NewReport(ctx.Limits())
 		for _, validator := range validators {
 			if validator == nil {
@@ -30,9 +34,13 @@ func All[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 }
 
 // Any requires at least one validator to pass. Failed alternatives are
-// returned only when every alternative fails.
+// returned only when every alternative fails. The supplied positions, including
+// nil entries, must fit Context.Limits().MaxCollectionSize before any invocation.
 func Any[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 	return ValidatorFunc[T](func(ctx Context, value T) Report {
+		if len(validators) > ctx.Limits().MaxCollectionSize {
+			return collectionLimitReport(ctx)
+		}
 		failures := NewReport(ctx.Limits())
 		successes := NewReport(ctx.Limits())
 		partial := NewReport(ctx.Limits())
@@ -61,6 +69,12 @@ func Any[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 		}
 		return failures
 	})
+}
+
+func collectionLimitReport(ctx Context) Report {
+	return NewReport(ctx.Limits()).Add(NewViolation(
+		ctx.Path(), "collection_limit", Error, nil, ErrLimitExceeded,
+	))
 }
 
 // Not passes only when validator fails.

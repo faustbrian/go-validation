@@ -7,6 +7,12 @@ versioning.
 
 ### Changed
 
+- Bound the next major release's `All`, `Any`, `AsyncAll`, and both service
+  chains by `MaxCollectionSize`, counting all supplied positions including nil.
+  Oversized fanout fails before invocation or async result/worker allocation.
+  Set an explicit appropriate limit for larger trusted compositions; caller
+  cancellation continues to take precedence for async and service operations.
+
 - Prepare the next major release's private default diagnostics for pattern
   compilation and struct-plan construction. Errors no longer print caller
   expressions, field names, type names, or rule identifiers. Match stable
