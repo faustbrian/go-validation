@@ -50,7 +50,7 @@ func Add[T, V any](builder *Builder[T], name string, accessor func(T) V,
 		return fmt.Errorf("%w: field path", validation.ErrLimitExceeded)
 	}
 	if _, exists := builder.names[name]; exists {
-		return fmt.Errorf("%w: %s", ErrDuplicateField, name)
+		return privateConstructionError(fmt.Errorf("%w: %s", ErrDuplicateField, name))
 	}
 	if len(builder.fields) >= builder.limits.MaxStructFields {
 		return fmt.Errorf("%w: struct fields", validation.ErrLimitExceeded)
@@ -67,6 +67,30 @@ func Add[T, V any](builder *Builder[T], name string, accessor func(T) V,
 		return safeField.Validate(ctx.WithPath(validation.Field(name)), value)
 	})
 	return nil
+}
+
+// Plan construction diagnostics can contain caller-defined fields, types and
+// rules. Preserve their original cause chain behind a fixed public category.
+type constructionError struct {
+	category string
+	cause    error
+}
+
+func (err *constructionError) Error() string { return err.category }
+
+func (err *constructionError) Unwrap() error { return err.cause }
+
+func privateConstructionError(cause error) error {
+	for _, kind := range []error{
+		ErrDuplicateField, ErrUnknownRule, ErrDuplicateRule, ErrInvalidTag,
+		ErrCycle, ErrUnsupportedKind, ErrInvalidPlan,
+		validation.ErrLimitExceeded, validation.ErrInvalidLimit,
+	} {
+		if errors.Is(cause, kind) {
+			return &constructionError{category: kind.Error(), cause: cause}
+		}
+	}
+	return &constructionError{category: "validation plan construction failed", cause: cause}
 }
 
 // Plan is an immutable reflection-free typed struct plan.

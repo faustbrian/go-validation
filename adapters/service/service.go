@@ -19,11 +19,15 @@ type Hook[T any] func(context.Context, validation.Context, T) validation.Report
 func (hook Hook[T]) Validate(ctx context.Context,
 	validationContext validation.Context, value T,
 ) validation.Report {
-	return hook(ctx, validationContext, value)
+	return validation.ValidatorFunc[T](func(validationContext validation.Context, value T) validation.Report {
+		return hook(ctx, validationContext, value)
+	}).Validate(validationContext, value)
 }
 
 // Chain evaluates service hooks in declaration order and preserves caller
 // cancellation or deadline as a terminal validation outcome.
+// Total supplied positions, including nil, must fit MaxCollectionSize before
+// invocation; caller cancellation takes precedence over this admission.
 func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T] {
 	return Hook[T](func(ctx context.Context,
 		validationContext validation.Context, value T,
@@ -37,6 +41,9 @@ func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
 		}
 		if terminal := validation.ContextReport(validationContext, ctx); terminal.ContextError() != nil {
 			return finish(terminal)
+		}
+		if len(validators) > validationContext.Limits().MaxCollectionSize {
+			return finish(collectionLimitReport(validationContext))
 		}
 		report := validation.NewReport(validationContext.Limits())
 		for _, validator := range validators {
@@ -60,4 +67,10 @@ func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
 		}
 		return finish(report)
 	})
+}
+
+func collectionLimitReport(ctx validation.Context) validation.Report {
+	return validation.NewReport(ctx.Limits()).Add(validation.NewViolation(
+		ctx.Path(), "collection_limit", validation.Error, nil, validation.ErrLimitExceeded,
+	))
 }

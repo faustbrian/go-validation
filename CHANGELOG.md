@@ -5,6 +5,28 @@ versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- Make HTTP and service function hooks in canonical and retained packages
+  contain panics through the core validator adapter, discarding private panic
+  payloads. Arbitrary interface implementations remain application-owned and
+  require explicit isolation. HTTP problem writers now reject status values
+  outside 100–999 before touching response headers or the body; callers receive
+  an error classified as `ErrInvalidViolation` instead of a partial response
+  or a downstream invalid-status panic.
+
+- Bound the next major release's `All`, `Any`, `AsyncAll`, and both service
+  chains by `MaxCollectionSize`, counting all supplied positions including nil.
+  Oversized fanout fails before invocation or async result/worker allocation.
+  Set an explicit appropriate limit for larger trusted compositions; caller
+  cancellation continues to take precedence for async and service operations.
+
+- Prepare the next major release's private default diagnostics for pattern
+  compilation and struct-plan construction. Errors no longer print caller
+  expressions, field names, type names, or rule identifiers. Match stable
+  classifications with `errors.Is` and inspect original causes explicitly with
+  `errors.As` or `errors.Unwrap` instead of parsing default error text.
+
 ## [1.2.0] - 2026-10-01
 
 ### Changed

@@ -179,6 +179,8 @@ func AsyncAll[T any](ctx context.Context, validationContext Context, value T,
     AsyncAll executes context-aware validators with bounded concurrency and
     merges their reports in declaration order. Cancellation stops unscheduled
     work; validators already running remain responsible for honoring ctx.
+    After checking caller cancellation, total supplied positions (including nil)
+    must fit MaxCollectionSize before workers or result storage are allocated.
 
 func ContextReport(validationContext Context, ctx context.Context) Report
     ContextReport returns an empty report that snapshots ctx.Err(). An active
@@ -273,11 +275,14 @@ type Validator[T any] interface {
     Validator is the deterministic, side-effect-free validation contract.
 
 func All[T any](mode Mode, validators ...Validator[T]) Validator[T]
-    All requires every validator to pass.
+    All requires every validator to pass. The supplied positions, including nil
+    entries, must fit Context.Limits().MaxCollectionSize before any invocation.
 
 func Any[T any](mode Mode, validators ...Validator[T]) Validator[T]
     Any requires at least one validator to pass. Failed alternatives are
-    returned only when every alternative fails.
+    returned only when every alternative fails. The supplied positions,
+    including nil entries, must fit Context.Limits().MaxCollectionSize before
+    any invocation.
 
 func Dependent[T any](prerequisite, dependent Validator[T]) Validator[T]
     Dependent runs dependent only when prerequisite has no blocking errors.
@@ -519,7 +524,9 @@ type Validator[T any] interface {
 
 func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
     Chain evaluates service hooks in declaration order and preserves caller
-    cancellation or deadline as a terminal validation outcome.
+    cancellation or deadline as a terminal validation outcome. Total supplied
+    positions, including nil, must fit MaxCollectionSize before invocation;
+    caller cancellation takes precedence over this admission.
 
 package rules // import "github.com/faustbrian/go-validation/rules"
 
@@ -975,7 +982,9 @@ type Validator[T any] interface {
 
 func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
     Chain evaluates service hooks in declaration order and preserves caller
-    cancellation or deadline as a terminal validation outcome.
+    cancellation or deadline as a terminal validation outcome. Total supplied
+    positions, including nil, must fit MaxCollectionSize before invocation;
+    caller cancellation takes precedence over this admission.
 
 package validationtest // import "github.com/faustbrian/go-validation/validationtest"
 

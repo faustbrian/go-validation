@@ -7,6 +7,7 @@ package validationhttp
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	validation "github.com/faustbrian/go-validation"
@@ -59,6 +60,9 @@ func severity(value validation.Severity) string {
 
 // WriteProblem writes a problem without depending on a router.
 func WriteProblem(writer http.ResponseWriter, problem Problem) error {
+	if problem.Status < 100 || problem.Status > 999 {
+		return fmt.Errorf("%w: HTTP problem status", validation.ErrInvalidViolation)
+	}
 	writer.Header().Set("Content-Type", "application/problem+json")
 	writer.WriteHeader(problem.Status)
 	return json.NewEncoder(writer).Encode(problem)
@@ -69,5 +73,7 @@ type Hook[T any] func(*http.Request, T) validation.Report
 
 // Validate invokes the application-supplied request validation hook.
 func (hook Hook[T]) Validate(request *http.Request, value T) validation.Report {
-	return hook(request, value)
+	return validation.ValidatorFunc[T](func(_ validation.Context, value T) validation.Report {
+		return hook(request, value)
+	}).Validate(validation.Context{}, value)
 }
