@@ -96,6 +96,8 @@ func TestTagPlanConstructionDiagnosticIsPrivate(t *testing.T) {
 			type value struct {
 				privateFieldMarker string `validate:"required"`
 			}
+			// This field is intentionally consumed by reflective compilation.
+			_ = value{}.privateFieldMarker
 			plan, err := structplan.CompileTags[value](validation.DefaultLimits())
 			if plan != nil {
 				t.Fatal("inaccessible field returned a partial plan")
