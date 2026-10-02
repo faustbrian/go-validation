@@ -65,6 +65,20 @@ Custom validators remain application code and can violate the non-mutation
 rule; isolate them by ownership and review, not by assuming Go can enforce
 purity. `ValidatorFunc` and `AsyncValidatorFunc` contain panics automatically.
 Wrap other interface implementations with `IsolatePanics` before direct use.
+HTTP and service `Hook` function adapters, in both canonical and retained
+packages, use the same core containment owner. Their panic payloads are
+discarded; blocking `validator_panic` findings retain `ErrValidatorPanic`
+classification, subject to ordinary report diagnostic/path budgets. HTTP
+hooks use default validation limits; service hooks preserve the supplied
+validation context. Config checks, arbitrary service interfaces, and observers
+remain trusted application collaborators; this does not promise their recovery,
+preemption, or mutation safety.
+
+Both HTTP `WriteProblem` variants reject statuses outside 100–999 with a fixed
+`ErrInvalidViolation`-classified error before accessing the response writer.
+Valid statuses preserve their existing JSON and header behavior. Writer and
+encoder failures remain caller-owned errors, not recovered panics.
+
 `AsyncAll` joins every admitted callback before return; a callback that ignores
 the caller context can still delay the caller and remains application-owned.
 

@@ -19,7 +19,9 @@ type Hook[T any] func(context.Context, validation.Context, T) validation.Report
 func (hook Hook[T]) Validate(ctx context.Context,
 	validationContext validation.Context, value T,
 ) validation.Report {
-	return hook(ctx, validationContext, value)
+	return validation.ValidatorFunc[T](func(validationContext validation.Context, value T) validation.Report {
+		return hook(ctx, validationContext, value)
+	}).Validate(validationContext, value)
 }
 
 // Chain evaluates service hooks in declaration order and preserves caller
