@@ -2,7 +2,7 @@
 // Severity and aggregation metadata are package-owned extensions.
 package validationjsonapi
 
-import validation "github.com/faustbrian/go-validation"
+import validation "github.com/faustbrian/go-validation/v2"
 
 // Document is a JSON:API error document with report-level metadata.
 type Document struct {

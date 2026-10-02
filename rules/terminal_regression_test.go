@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation"
-	"github.com/faustbrian/go-validation/rules"
+	validation "github.com/faustbrian/go-validation/v2"
+	"github.com/faustbrian/go-validation/v2/rules"
 )
 
 func terminalValidator[T any](ctx validation.Context, calls *atomic.Int32) validation.Validator[T] {

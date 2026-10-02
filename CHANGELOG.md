@@ -7,6 +7,13 @@ versioning.
 
 ### Changed
 
+- Prepare v2.0.0 under `github.com/faustbrian/go-validation/v2`, retaining
+  Go 1.27.0 and all sixteen packages at their existing source locations.
+  Update every validation import to include `/v2`; named types from different
+  major module paths are not assignment-compatible. See the
+  [migration guide](docs/migration.md#adopting-v2) for the behavioral changes
+  below. Existing v1 consumers remain on their published module identity.
+
 - Make HTTP and service function hooks in canonical and retained packages
   contain panics through the core validator adapter, discarding private panic
   payloads. Arbitrary interface implementations remain application-owned and

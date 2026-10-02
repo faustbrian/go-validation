@@ -9,7 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	validation "github.com/faustbrian/go-validation"
+	validation "github.com/faustbrian/go-validation/v2"
 )
 
 type tagRule struct {

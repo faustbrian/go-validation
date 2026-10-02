@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation"
-	"github.com/faustbrian/go-validation/structplan"
+	validation "github.com/faustbrian/go-validation/v2"
+	"github.com/faustbrian/go-validation/v2/structplan"
 )
 
 func TestTypedPlanStopsAfterTerminalField(t *testing.T) {

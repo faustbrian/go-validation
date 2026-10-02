@@ -4,11 +4,16 @@ The minimum supported toolchain is Go 1.27.0. The module has no runtime
 third-party dependencies. Linux, macOS, and Windows are supported where the Go
 standard library is supported; CI's primary environment is Linux.
 
-The v1 compatibility contract includes exported Go API, sentinel relationships,
+The v2 compatibility contract includes exported Go API, sentinel relationships,
 stable standard-rule codes, path rendering and JSON-pointer escaping,
 declaration-order aggregation, deduplication identity, and transport field
 names. Application translations, custom codes, benchmark timings, and
 observation backend adapters are outside that contract.
+
+The v2 module uses `github.com/faustbrian/go-validation/v2`. Its intentional
+changes from v1 are documented in the [migration guide](migration.md#adopting-v2).
+The unmodified released v1.2.0 snapshot remains in `api/v1.2.0.txt`; it is
+historical evidence, not the current v2 check baseline.
 
 v1.1.0 additively introduces terminal cancellation/deadline state and five
 target-oriented adapter paths. Existing declarations and signatures remain.

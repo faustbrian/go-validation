@@ -4,7 +4,7 @@ package validationservice
 import (
 	"context"
 
-	validation "github.com/faustbrian/go-validation"
+	validation "github.com/faustbrian/go-validation/v2"
 )
 
 // Validator is a cancellation-aware service-boundary validation contract.

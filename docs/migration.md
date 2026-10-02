@@ -1,5 +1,42 @@
 # Migration and versioning
 
+## Adopting v2
+
+After v2.0.0 is publicly available, require
+`github.com/faustbrian/go-validation/v2@v2.0.0` and insert `/v2` after
+`go-validation` in every root and subpackage import. Go 1.27.0 remains the
+minimum toolchain. The module stays at the repository root; there is no `v2`
+source directory. Do not bridge v1 and v2 named types by assignment.
+
+All sixteen packages remain available, including the five deprecated
+integration paths under the v2 module. Prefer `adapters/config`,
+`adapters/http`, `adapters/jsonapi`, `adapters/jsonrpc`, and `adapters/service`
+for new integrations. Their existing deprecation policy is unchanged; the
+retained v2 paths do not preserve cross-major Go type identity. Existing
+consumers may continue to pin published v1 versions independently.
+
+Review these intentional behavioral changes at each application boundary:
+
+- Pattern and struct-plan construction errors no longer print expressions,
+  field names, type names, or rule identifiers by default. Use `errors.Is`
+  for stable classifications. Explicit `errors.As` or `errors.Unwrap` access
+  to original causes is a trusted diagnostic boundary, not safe public prose.
+- `All`, `Any`, `AsyncAll`, and both service chains count every supplied
+  position, including nil, against `MaxCollectionSize`. Oversized fanout is
+  refused before invocation or async allocation; set an appropriate explicit
+  limit for larger trusted compositions. Cancellation still takes precedence
+  for async and service operations.
+- Canonical and retained HTTP/service function hooks contain panics and
+  discard payloads. Arbitrary interface implementations remain caller-owned
+  and require explicit isolation. HTTP problem writers reject statuses outside
+  100–999 as `ErrInvalidViolation` before changing headers or writing a body.
+
+Re-run application response fixtures and success/cancellation checks rather
+than comparing private diagnostic text. The released v1.2.0 API snapshot is
+preserved in `api/v1.2.0.txt`; `api/baseline.txt` tracks the current v2 API.
+
+## Earlier v1 migrations
+
 Before adopting v1, pin the module version and record existing response payload
 fixtures. Migrate one boundary at a time using the [adoption guide](adoption.md).
 

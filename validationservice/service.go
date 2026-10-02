@@ -1,6 +1,6 @@
 // Package validationservice provides transport-neutral service hook contracts.
 //
-// Deprecated: use github.com/faustbrian/go-validation/adapters/service. This
+// Deprecated: use github.com/faustbrian/go-validation/v2/adapters/service. This
 // path remains supported for the longer of 180 days after successor public
 // availability and two published stable minor releases.
 package validationservice
@@ -8,7 +8,7 @@ package validationservice
 import (
 	"context"
 
-	validation "github.com/faustbrian/go-validation"
+	validation "github.com/faustbrian/go-validation/v2"
 )
 
 // Validator is a cancellation-aware service-boundary validation contract.

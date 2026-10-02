@@ -1,12 +1,12 @@
 // Package validationrpc projects reports into JSON-RPC invalid-params errors.
 // The data member is a package-owned JSON-RPC 2.0 extension.
 //
-// Deprecated: use github.com/faustbrian/go-validation/adapters/jsonrpc. This
+// Deprecated: use github.com/faustbrian/go-validation/v2/adapters/jsonrpc. This
 // path remains supported for the longer of 180 days after successor public
 // availability and two published stable minor releases.
 package validationrpc
 
-import validation "github.com/faustbrian/go-validation"
+import validation "github.com/faustbrian/go-validation/v2"
 
 // Error is a JSON-RPC error object.
 type Error struct {

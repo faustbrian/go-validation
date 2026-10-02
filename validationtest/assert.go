@@ -2,7 +2,7 @@
 // helpers for consumers.
 package validationtest
 
-import validation "github.com/faustbrian/go-validation"
+import validation "github.com/faustbrian/go-validation/v2"
 
 // TestingT is the subset of testing.TB used by these helpers.
 type TestingT interface {

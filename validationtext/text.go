@@ -5,7 +5,7 @@ import (
 	"html"
 	"unicode/utf8"
 
-	validation "github.com/faustbrian/go-validation"
+	validation "github.com/faustbrian/go-validation/v2"
 )
 
 // Catalog looks up application-facing prose without changing rule semantics.
