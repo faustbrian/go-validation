@@ -5,6 +5,12 @@ versioning.
 
 ## [Unreleased]
 
+### Documentation
+
+- Identify the diagnostic privacy and validator fanout admission changes in
+  the security model as published v2.0.0 behavior, distinct from historical v1
+  artifacts and whole-family security completion.
+
 ### Changed
 
 - Prepare v2.0.0 under `github.com/faustbrian/go-validation/v2`, retaining

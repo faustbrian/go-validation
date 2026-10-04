@@ -1,8 +1,8 @@
 # Security model
 
-## Unreleased diagnostic change
+## Published v2 diagnostic change
 
-The upcoming major release changes the default error text returned by
+The published v2.0.0 release changes the default error text returned by
 `rules.Pattern` and public `structplan` construction/tag compilation. These
 errors expose fixed categories rather than caller expressions, field names,
 type names, or rule identifiers. Valid matching and plan behavior are unchanged.
@@ -12,7 +12,7 @@ trusted inspection. Those causes may contain private application configuration;
 do not render them into public logs, traces, or responses. Consumers must stop
 parsing default diagnostic text and use the structured classification instead.
 
-This is unreleased preparation, not a change to an already published v1
+This describes the published v2 API, not a change to an already published v1
 artifact or a claim that the whole package family has completed security work.
 
 ## Trust boundaries
@@ -82,7 +82,7 @@ encoder failures remain caller-owned errors, not recovered panics.
 `AsyncAll` joins every admitted callback before return; a callback that ignores
 the caller context can still delay the caller and remains application-owned.
 
-The unreleased fanout admission applies at execution, using the supplied
+The fanout admission published in v2.0.0 applies at execution, using the supplied
 validation `Context` (or its safe default limits). `All`, `Any`, `AsyncAll`,
 and both service `Chain` variants reject a list exceeding `MaxCollectionSize`
 without invoking any validator or retaining partial findings. The refusal is
