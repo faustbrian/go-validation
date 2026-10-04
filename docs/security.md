@@ -97,6 +97,51 @@ is checked first and remains the terminal outcome. This bounds package-owned
 invocation and async state, not the caller's allocation of validator definitions
 or the work performed by trusted callback code.
 
+## Residual ownership and review
+
+These records make the existing trust boundaries accountable. They do not
+authorize new behavior, waive findings or establish whole-family security
+completion. Package maintainers own preserving the documented contracts;
+application integrators own the collaborators and disclosure choices below.
+
+### Application callback execution
+
+- Owner: application integrators for callback behavior; package maintainers
+  for admission, bounded concurrency and joining admitted work.
+- Rationale: callback implementations are application code. Cancellation
+  cannot forcibly stop a running callback or enforce its input ownership.
+- Mitigation: use reviewed context-aware callbacks, caller deadlines and
+  appropriate collection/concurrency limits. Use the documented panic
+  wrappers for arbitrary validator implementations. Wrapping does not make
+  callbacks preemptible or prevent their mutation of application objects.
+- Review condition: callback implementation, ownership, deadline handling,
+  concurrency limits or lifecycle requirements change.
+
+### Explicit diagnostic introspection
+
+- Owner: application integrators for diagnostic sinks; package maintainers
+  for private default formatting and stable error classification.
+- Rationale: explicit error introspection retains original compilation
+  causes for trusted diagnosis; these can contain application configuration.
+- Mitigation: use default formatting and structured classifications for
+  public output. Restrict cause inspection to trusted diagnosis and redact
+  application configuration before storing or exporting it.
+- Review condition: cause handling, diagnostic destinations, logging policy
+  or public error projections change.
+
+### Application-supplied diagnostic content
+
+- Owner: application integrators for parameter, path and catalog content;
+  package maintainers for documented bounds, escaping and projections.
+- Rationale: bounded and escaped application text can still be confidential.
+  The package cannot infer which application strings are safe to disclose.
+- Mitigation: supply only public-safe parameters and catalog messages for
+  public projections; avoid confidential field/key names in exposed paths.
+  Keep private causes out of projections and observation labels. Encoding
+  and size limits are not a confidentiality policy.
+- Review condition: input schema, parameters, catalog messages, diagnostic
+  consumers or application disclosure policy change.
+
 ## Reporting vulnerabilities
 
 Do not include a real secret or customer payload in a report. Provide a minimal
