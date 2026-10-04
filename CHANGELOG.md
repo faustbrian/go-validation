@@ -7,6 +7,10 @@ versioning.
 
 ### Documentation
 
+- Record owners, rationale, mitigations and review conditions for existing
+  callback and diagnostic trust boundaries without expanding guarantees or
+  claiming whole-family security completion.
+
 - Identify the diagnostic privacy and validator fanout admission changes in
   the security model as published v2.0.0 behavior, distinct from historical v1
   artifacts and whole-family security completion.
