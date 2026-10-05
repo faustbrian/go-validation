@@ -21,13 +21,15 @@ The published `github.com/faustbrian/go-validation/v2` line, starting at
 residual ownership are documented in [the security model](docs/security.md).
 
 The earlier `github.com/faustbrian/go-validation` identity remains publicly
-available, including `v1.1.0` consumed by OpeningHours and Temporal and the
-toolchain-only `v1.2.0` release. Those versions do not acquire the v2 safeguards
-or qualification from this policy or from current-main CI. Their continued
-consumer adoption and security-support disposition remain unresolved; this
-document does not waive that boundary or certify retained v1 consumers.
-Cross-major named types are not interchangeable, so migration must be assessed
-at each consumer's public contract. See [`COMPATIBILITY.md`](COMPATIBILITY.md).
+available, including `v1.1.0` and the toolchain-only `v1.2.0` release. The v1
+line is historical compatibility, not the current security-maintained line;
+it does not acquire v2 safeguards or qualification from current-main CI.
+Historical consumer graphs remain available without a security certification.
+Current Temporal v2 and OpeningHours v3 sources consume Validation v2;
+unfinished consumer releases retain their own delivery requirements.
+Cross-major named types are not interchangeable. Consumers requiring the
+current safeguards must migrate their validator imports and public contracts
+together. See [`COMPATIBILITY.md`](COMPATIBILITY.md).
 
 ## Security Gates
 
