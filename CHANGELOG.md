@@ -5,6 +5,8 @@ versioning.
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-10-06
+
 ### Documentation
 
 - Record owners, rationale, mitigations and review conditions for existing
@@ -14,6 +16,17 @@ versioning.
 - Identify the diagnostic privacy and validator fanout admission changes in
   the security model as published v2.0.0 behavior, distinct from historical v1
   artifacts and whole-family security completion.
+
+### Maintenance
+
+- Refresh the immutable shared workflow and add opt-in exact-source
+security diagnostics without replacing ordinary CI, release
+qualification, or downstream adoption evidence.
+
+## [2.0.0]
+
+These historical notes describe safeguards already published in v2.0.0,
+not changes introduced by this patch.
 
 ### Changed
 
