@@ -22,9 +22,19 @@ beside each target so clean checkouts execute the same starting corpus.
 Run the configured release smoke with:
 
 ```sh
-make check
+make check-full
 ```
 
-The shared tool owns the target selection and `10000x` budget. Fuzzing
-supplements, but does not replace, deterministic boundary, race, mutation, and
-resource tests.
+The shared tool owns the full target selection and unchanged `10000x` budgets.
+Ordinary `make check` and `make ci` select bounded local verification, not all
+seven exploratory targets. For short active exploration select one target:
+
+```sh
+GOMAXPROCS=2 go test -run '^$' -fuzz '^FuzzPathAndReportSafety$' -fuzztime=2s -parallel=1 -timeout=2m .
+```
+
+Fuzzing supplements deterministic boundary and resource assertions. Mutation is
+optional local/scheduled assurance, not a required PR status; relevant async
+lifecycle changes retain named race checks. See
+[contributor verification](../CONTRIBUTING.md#verification) for offline/online
+specification, full-assurance and release boundaries.

@@ -2,8 +2,8 @@
 
 ## Before Editing
 
-1. Read [`AGENTS.md`](AGENTS.md) and the affected module's goals and docs.
-2. Run `make inventory` and the narrow baseline gate for the module.
+1. Read [`AGENTS.md`](AGENTS.md) and the affected package's docs.
+2. Run `go test ./...` or the affected package's narrower tests.
 3. Identify owned dependencies and reverse dependants in `modules.json`.
 4. Preserve unrelated work and generated/corpus provenance.
 
@@ -28,7 +28,9 @@ digest, and any superseded identifier with its replacement. An unresolved
 interpretation or stale source pin is release-blocking; peer behavior cannot
 silently select policy.
 
-Required mutation gates must finish with zero surviving viable mutants.
+Mutation is optional local or scheduled assurance, not a required PR status.
+Confirmed behavioral and security defects still require a focused regression
+and repair; equivalent/invalid mutants retain reviewed narrow dispositions.
 
 Do not add package-local workflows, permanent replacements, machine-specific
 paths, bypass flags, broad mutation exclusions, or aggregate quality metrics
@@ -36,21 +38,49 @@ that hide a failing package.
 
 ## Verification
 
-Run during development:
+Standalone `go test ./...` runs deterministic tests, fuzz seeds and saved corpus
+regressions without sibling checkouts or ecosystem ledgers. The manifest has no
+required services, build tags or test tags.
+
+With the checksum-pinned public verifier selected by `.golib.yaml`, use:
 
 ```bash
 make inventory
 make check
-```
-
-Before submitting a repository-wide change:
-
-```bash
 make ci
 ```
 
-The full scheduled and release gate is `make ci`. Report every unavailable or
-failing command; do not describe partial results as release-ready.
+`check` and `ci` use bounded local checks. Three named root race assertions
+exercise `AsyncAll` concurrency/order bounds, cancellation stopping admission
+while joining callbacks and retaining partial findings, and deadline cleanup
+with retained ordered warnings. They run once with a two-minute timeout, not a
+broad stress campaign. Ordinary CI consumes the public verifier without a source
+build. The separate manual security diagnostic retains its selected source
+qualification, release-substitution refusal and cleanup.
+
+`make specification-check` validates the offline register and history;
+`make specification-check-online` additionally re-fetches reviewed authority
+digests. Ordinary `ci` uses the offline boundary, while `make check-full` retains
+the online refresh. Existing hosted Required and security controls remain intact.
+
+Select one target for short active fuzz exploration. Optional local mutation
+selects one package; neither command is an all-change prerequisite:
+
+```bash
+GOMAXPROCS=2 go test -run '^$' -fuzz '^FuzzPathAndReportSafety$' -fuzztime=2s -parallel=1 -timeout=2m .
+golib mutation --module . --package ./rules
+```
+
+Path, transport, async lifecycle, API and specification changes retain affected
+conformance, compatibility, race and direct-adapter/consumer checks. Preserve
+the minimized fuzz corpus and source authority decisions.
+
+`make check-full` retains full assurance, all seven native 10000x fuzz budgets,
+conformance and benchmarks. Relevant release qualification remains
+`golib release dry-run --module .`. Select full/release checks for their material
+risk or release boundary, not every commit. Report unavailable, skipped and
+failed boundaries honestly; a local pass is not online authority, hosted-CI or
+public-release qualification.
 
 ## Adding A Module
 

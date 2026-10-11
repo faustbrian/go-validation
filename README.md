@@ -3,7 +3,7 @@
 [![CI](https://github.com/faustbrian/go-validation/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/faustbrian/go-validation/actions/workflows/ci.yml)
 [![CodeQL](https://img.shields.io/badge/CodeQL-required-blue)](https://github.com/faustbrian/go-validation/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-100%25_required-blue)](CONTRIBUTING.md#verification)
-[![Mutation](https://img.shields.io/badge/mutation-100%25_required-blue)](CONTRIBUTING.md#verification)
+[![Mutation](https://img.shields.io/badge/mutation-local_and_scheduled-blue)](CONTRIBUTING.md#verification)
 [![Documentation](https://img.shields.io/badge/docs-checked_in_CI-blue)](docs/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-validation/v2.svg)](https://pkg.go.dev/github.com/faustbrian/go-validation/v2)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-validation?sort=semver)](https://github.com/faustbrian/go-validation/releases)
@@ -90,10 +90,15 @@ Target-oriented integrations live under `adapters/config`, `adapters/http`,
 ## Local verification
 
 ```sh
+go test ./...
 make check
 ```
 
-The Makefile delegates to the same released `golib` contract used by CI.
+With the checksum-pinned public verifier, `make check` and `make ci` select
+bounded local checks; `make check-full` preserves explicit full assurance.
+See [contributor verification](CONTRIBUTING.md#verification) for selected 2s
+fuzzing, optional single-package mutation, asynchronous lifecycle race
+assertions and relevant specification, compatibility and release boundaries.
 Hosted CI is a release integrator's final external verification step, not a
 prerequisite for local development.
 
