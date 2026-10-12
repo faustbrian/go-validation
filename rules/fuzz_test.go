@@ -6,6 +6,9 @@ import (
 	"github.com/faustbrian/go-validation/v2/rules"
 )
 
+// FuzzUnicodeAndMalformedPrimitives exercises malformed strings through the
+// package-defined syntactic profiles and byte/rune rules. Results are ignored:
+// this is panic/resource safety, not a standards acceptance oracle.
 func FuzzUnicodeAndMalformedPrimitives(f *testing.F) {
 	f.Add("é", "https://example.com", "a@example.com")
 	f.Add(string([]byte{0xff, 0xfe}), "://", "not-mail")

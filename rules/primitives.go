@@ -30,7 +30,9 @@ func URL() validation.Validator[string] {
 	})
 }
 
-// Hostname requires an RFC-style DNS hostname bounded to 253 bytes.
+// Hostname checks ASCII DNS-style labels with normalized length at most 253
+// after removing one trailing dot for checking only. It performs no DNS/IDNA
+// lookup, changes no input value and makes no complete standards claim.
 func Hostname() validation.Validator[string] {
 	return stringPredicate("hostname", func(value string) bool {
 		value = strings.TrimSuffix(value, ".")
@@ -70,7 +72,9 @@ func Email() validation.Validator[string] {
 	})
 }
 
-// UUID requires a canonical RFC 9562 UUID string.
+// UUID accepts case-insensitive hyphenated UUID text with version 1..8 and
+// RFC variant bits. Nil/max special forms are rejected; this is a package
+// syntactic profile, not complete RFC9562 validation.
 func UUID() validation.Validator[string] {
 	return stringPredicate("uuid", uuidPattern.MatchString)
 }

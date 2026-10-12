@@ -29,7 +29,13 @@ type TagPlan[T any] struct {
 	fields []compiledField
 }
 
-// CompileTags strictly compiles validate tags for T.
+// CompileTags requires a struct root (not a root pointer) and positive limits.
+// It checks grammar, inaccessible tagged fields, visited field count and
+// compile-time struct-type cycles/depth. Untagged exported structs/pointers
+// recurse; tagged fields retain runtime rule dispatch, including interfaces.
+// It does not prove runtime dereference termination or reject every rule/kind
+// incompatibility at construction. Causes retain private type/tag diagnostics
+// behind fixed outer categories; restrict explicit cause introspection.
 func CompileTags[T any](limits validation.Limits) (*TagPlan[T], error) {
 	if _, err := validation.NewContext(limits); err != nil {
 		return nil, fmt.Errorf("compile tag plan: %w", err)
@@ -142,7 +148,13 @@ func parseTag(tag string) ([]tagRule, error) {
 	return rules, nil
 }
 
-// Validate evaluates precompiled fields in deterministic declaration order.
+// Validate evaluates fields in compiled declaration order without coercion or
+// mutation, using caller Context string/collection/path/report bounds. Required
+// fails missing/nil values; non-required rules skip them. Unsupported concrete
+// rule/kind combinations fail during validation rather than startup.
+// Runtime pointer/interface chains must be acyclic: indirect/required traversal
+// has no cycle counter or cancellation and can loop on cyclic object graphs.
+// This is an existing runtime limitation, not type-cycle conformance.
 func (plan *TagPlan[T]) Validate(ctx validation.Context, value T) validation.Report {
 	report := validation.NewReport(ctx.Limits())
 	root := reflect.ValueOf(value)

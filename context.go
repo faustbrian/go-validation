@@ -2,8 +2,10 @@ package validation
 
 import "fmt"
 
-// Context is immutable deterministic validation state. It intentionally does
-// not embed context.Context because ordinary validators cannot perform I/O.
+// Context is immutable deterministic validation state without context.Context.
+// Ordinary validators are required to avoid IO; this type cannot enforce
+// callback purity or preempt blocking code. Metadata is size-bounded, not
+// authenticated, sanitized or classified for confidentiality.
 type Context struct {
 	limits    Limits
 	locale    string
@@ -31,12 +33,18 @@ func WithOperation(operation string) ContextOption {
 	return func(config *contextConfig) { config.operation = operation }
 }
 
-// WithMetadata adds bounded non-sensitive metadata.
+// WithMetadata records application-asserted non-sensitive metadata. NewContext
+// applies count/key/value byte limits after options run; it does not inspect
+// confidentiality, normalize text or prevent option-time allocation.
 func WithMetadata(key, value string) ContextOption {
 	return func(config *contextConfig) { config.metadata[key] = value }
 }
 
-// NewContext constructs immutable validation state.
+// NewContext requires every limit to be positive; zero limits do not select
+// defaults here. Nil options are ignored, repeated metadata keys overwrite,
+// and options run synchronously without panic containment. Result metadata
+// is copied, but text is checked for byte size rather than UTF-8/privacy.
+// A zero Context uses default limits through Limits and an empty root path.
 func NewContext(limits Limits, options ...ContextOption) (Context, error) {
 	if err := limits.validate(); err != nil {
 		return Context{}, err

@@ -34,7 +34,10 @@ func sizeParameters(minimum, maximum int) map[string]string {
 	return map[string]string{"minimum": strconv.Itoa(minimum), "maximum": strconv.Itoa(maximum)}
 }
 
-// Unique requires every comparable slice item to occur once.
+// Unique uses Go comparable equality after collection admission. NaNs do not
+// compare equal and therefore can repeat; dynamic noncomparable any values
+// become validator_panic findings through the function adapter. It does not
+// canonicalize values or implement JSON structural equality.
 func Unique[T comparable]() validation.Validator[[]T] {
 	return uniqueValidator[T](isStringType[T]())
 }
@@ -120,7 +123,9 @@ func keysValidator[K cmp.Ordered, V any](
 }
 
 // Values validates map values in sorted key order and locates each finding at
-// its typed key segment.
+// its typed key segment. Ordinary Go map equality/lookup applies: NaN floating
+// keys cannot be retrieved and yield the zero V; they do not provide a
+// dependable keyed-validation location. Inputs must remain unchanged.
 func Values[K cmp.Ordered, V any](mode validation.Mode,
 	validator validation.Validator[V],
 ) validation.Validator[map[K]V] {

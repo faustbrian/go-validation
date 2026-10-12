@@ -25,8 +25,10 @@ type Violation struct {
 	cause      error
 }
 
-// NewViolation constructs a violation. Parameters and paths are copied;
-// malformed or unsafe diagnostic metadata fails closed.
+// NewViolation validates code/severity/parameters against DefaultLimits, not
+// a caller Context; report admission may impose stricter bounds. Parameters
+// are copied and the immutable Path value is retained. Malformed diagnostic
+// metadata fails closed; safeCause remains borrowed and application-asserted.
 func NewViolation(path Path, code string, severity Severity,
 	parameters map[string]string, safeCause error,
 ) Violation {
@@ -51,7 +53,9 @@ func (v Violation) Severity() Severity { return v.severity }
 // Parameters returns a defensive copy of safe message parameters.
 func (v Violation) Parameters() map[string]string { return cloneMap(v.parameters) }
 
-// Cause returns an explicitly safe underlying cause.
+// Cause returns the borrowed application-asserted safe cause unchanged.
+// The package neither clones nor sanitizes that error; restrict introspection
+// when implementations retain sensitive configuration or input.
 func (v Violation) Cause() error { return v.cause }
 
 // String deliberately excludes parameters, causes, and rejected values.

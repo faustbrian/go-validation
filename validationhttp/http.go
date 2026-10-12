@@ -15,9 +15,13 @@ import (
 
 // Problem is RFC 9457-inspired, with package extensions; it is not complete.
 type Problem struct {
-	Type   string  `json:"type"`
-	Title  string  `json:"title"`
-	Status int     `json:"status"`
+	// Type is an application-overridable problem URI; FromReport uses the package fixed type.
+	Type string `json:"type"`
+	// Title is mutable public prose; FromReport selects warnings or failure text.
+	Title string `json:"title"`
+	// Status is the projected 200/422 status; WriteProblem accepts manually supplied statuses only within 100..999.
+	Status int `json:"status"`
+	// Errors is a detached ordered finding slice; causes/terminal context are not included.
 	Errors []Error `json:"errors"`
 	// Truncated reports whether findings were omitted by MaxViolations.
 	Truncated bool `json:"truncated,omitempty"`
@@ -25,10 +29,14 @@ type Problem struct {
 
 // Error is one safe HTTP validation finding.
 type Error struct {
-	Path       string            `json:"path"`
-	Code       string            `json:"code"`
+	// Path is the human display path, which may contain application names.
+	Path string `json:"path"`
+	// Code is the stable machine identity.
+	Code string `json:"code"`
+	// Parameters is a defensive copy of application-asserted public-safe rule parameters.
 	Parameters map[string]string `json:"parameters,omitempty"`
-	Severity   string            `json:"severity"`
+	// Severity is error or warning from the source finding.
+	Severity string `json:"severity"`
 }
 
 // FromReport projects validation findings into an unprocessable-content
@@ -58,7 +66,12 @@ func severity(value validation.Severity) string {
 	return "error"
 }
 
-// WriteProblem writes a problem without depending on a router.
+// WriteProblem writes caller-owned problem data without routing or binding.
+// Invalid status rejects before touching writer. For valid status it sets the
+// content type and writes headers before encoding; failure can leave a partial
+// response. Writer/encoder panics are not contained; encoder errors are returned
+// unchanged.
+// Nil writer rejects only through ordinary Go panic, not a typed check.
 func WriteProblem(writer http.ResponseWriter, problem Problem) error {
 	if problem.Status < 100 || problem.Status > 999 {
 		return fmt.Errorf("%w: HTTP problem status", validation.ErrInvalidViolation)
@@ -71,7 +84,10 @@ func WriteProblem(writer http.ResponseWriter, problem Problem) error {
 // Hook is a transport integration seam that does not own routing or binding.
 type Hook[T any] func(*http.Request, T) validation.Report
 
-// Validate invokes the application-supplied request validation hook.
+// Validate borrows request/value and invokes the hook synchronously with core
+// panic containment/default validation limits. Nil hooks produce panic findings;
+// nil requests are forwarded. Mutation, request-body ownership, cancellation
+// handling and latency remain application obligations; no body is read/closed.
 func (hook Hook[T]) Validate(request *http.Request, value T) validation.Report {
 	return validation.ValidatorFunc[T](func(_ validation.Context, value T) validation.Report {
 		return hook(request, value)

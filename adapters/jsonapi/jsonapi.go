@@ -6,32 +6,43 @@ import validation "github.com/faustbrian/go-validation/v2"
 
 // Document is a JSON:API error document with report-level metadata.
 type Document struct {
-	Errors []Error      `json:"errors"`
-	Meta   DocumentMeta `json:"meta"`
+	// Errors holds detached ordered retained findings; it is empty, not omitted, when there are none.
+	Errors []Error `json:"errors"`
+	// Meta preserves hidden blocking/truncation state independently from retained errors.
+	Meta DocumentMeta `json:"meta"`
 }
 
 // DocumentMeta preserves aggregation state.
 type DocumentMeta struct {
+	// Truncated reports omitted findings, not total omitted count.
 	Truncated bool `json:"truncated"`
+	// HasErrors remains true when blocking findings were dropped by retention limits.
 	HasErrors bool `json:"has_errors"`
 }
 
 // Error is a JSON:API validation error object.
 type Error struct {
-	Status string    `json:"status"`
-	Code   string    `json:"code"`
-	Source Source    `json:"source"`
-	Meta   ErrorMeta `json:"meta"`
+	// Status is the per-finding string 422 for blocking errors or 200 for warnings, not a response-writer decision.
+	Status string `json:"status"`
+	// Code is the stable machine rule identity.
+	Code string `json:"code"`
+	// Source serializes a caller-owned typed path as a pointer, not proof that the request location exists.
+	Source Source `json:"source"`
+	// Meta contains copied parameters and package-defined severity extensions.
+	Meta ErrorMeta `json:"meta"`
 }
 
 // ErrorMeta preserves safe rule parameters and severity.
 type ErrorMeta struct {
+	// Parameters is a defensive copy, with confidentiality asserted by the application.
 	Parameters map[string]string `json:"parameters,omitempty"`
-	Severity   string            `json:"severity"`
+	// Severity is error or warning; this is package-owned JSON:API metadata.
+	Severity string `json:"severity"`
 }
 
 // Source identifies the invalid document location.
 type Source struct {
+	// Pointer is RFC6901 token serialization; generic Item emits -, without JSON Patch or pointer-evaluation semantics.
 	Pointer string `json:"pointer"`
 }
 

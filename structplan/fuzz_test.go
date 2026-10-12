@@ -25,6 +25,8 @@ type fuzzGeneric[T any] struct {
 	Value T `validate:"required"`
 }
 
+// FuzzTagGrammarNeverPanics probes bounded raw grammar strings; it does not
+// assert acceptance or returned error classifications.
 func FuzzTagGrammarNeverPanics(f *testing.F) {
 	f.Add("required,min=1,max=5")
 	f.Add("unknown,,min=-1")
@@ -36,6 +38,9 @@ func FuzzTagGrammarNeverPanics(f *testing.F) {
 	})
 }
 
+// FuzzCompiledPlansAcrossSupportedShapes exercises aliases, nil/non-nil
+// pointers, interfaces and collection admission on fixed acyclic type/value
+// shapes. It does not generate cyclic runtime dereference graphs.
 func FuzzCompiledPlansAcrossSupportedShapes(f *testing.F) {
 	f.Add("name", "a@example.com", 2, false)
 	f.Add("", "bad", 20, true)
@@ -78,6 +83,8 @@ func FuzzCompiledPlansAcrossSupportedShapes(f *testing.F) {
 	})
 }
 
+// FuzzTypedPlanConstructionNeverPanics probes named definitions, nil providers
+// and panic accessors under fixed limits without changing persistent builders.
 func FuzzTypedPlanConstructionNeverPanics(f *testing.F) {
 	f.Add("field", false, false, false)
 	f.Add("", true, false, true)

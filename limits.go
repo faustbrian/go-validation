@@ -4,19 +4,32 @@ import "fmt"
 
 // Limits bounds validation work performed on untrusted input.
 type Limits struct {
-	MaxDepth               int
-	MaxCollectionSize      int
-	MaxStringLength        int
-	MaxViolations          int
-	MaxPathLength          int
-	MaxMetadataEntries     int
-	MaxMetadataKeyLength   int
+	// MaxDepth caps compile-time reflected struct depth (root zero), not runtime pointer/interface cycle traversal; default 32.
+	MaxDepth int
+	// MaxCollectionSize caps admitted item/key/unique work and supplied compositor/service positions, including nil; default 10000.
+	MaxCollectionSize int
+	// MaxStringLength caps checked input/catalog bytes before parsing or escaping; default 65536, not all escaped-output allocation.
+	MaxStringLength int
+	// MaxViolations caps retained findings, default 100; hidden blocking and terminal state survive truncation.
+	MaxViolations int
+	// MaxPathLength caps human-rendered path bytes at report admission, default 1024; not total path construction or escaped-pointer bytes.
+	MaxPathLength int
+	// MaxMetadataEntries caps Context metadata and violation parameter entries, default 16.
+	MaxMetadataEntries int
+	// MaxMetadataKeyLength caps Context keys and machine diagnostic code/parameter names, default 64.
+	MaxMetadataKeyLength int
+	// MaxMetadataValueLength caps Context locale/operation/metadata and diagnostic parameter bytes, default 256; not confidentiality.
 	MaxMetadataValueLength int
-	MaxRegexPatternLength  int
-	MaxCustomConcurrency   int
-	MaxStructFields        int
-	MaxTagLength           int
-	MaxCompiledPlans       int
+	// MaxRegexPatternLength caps Pattern constructor expression bytes, default 1024; not a caller-context timeout.
+	MaxRegexPatternLength int
+	// MaxCustomConcurrency caps AsyncAll workers per invocation, default 8; concurrent calls multiply the bound.
+	MaxCustomConcurrency int
+	// MaxStructFields caps typed definitions and total reflected fields visited during compilation, default 256.
+	MaxStructFields int
+	// MaxTagLength caps each visited validate tag before grammar splitting, default 1024.
+	MaxTagLength int
+	// MaxCompiledPlans caps distinct reflect.Type entries in an instance Cache, default 256; Clear permits later recompilation.
+	MaxCompiledPlans int
 }
 
 // DefaultLimits returns conservative limits suitable for application input.

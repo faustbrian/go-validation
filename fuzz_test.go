@@ -8,6 +8,9 @@ import (
 	validation "github.com/faustbrian/go-validation/v2"
 )
 
+// FuzzPathAndReportSafety checks typed display-collision identity, rooted path
+// refusal and omission of a synthetic rejected-value marker from default text.
+// It does not classify arbitrary caller paths/parameters for confidentiality.
 func FuzzPathAndReportSafety(f *testing.F) {
 	f.Add("field", "code", "secret")
 	f.Add("a/b~c", "required", "password-token")

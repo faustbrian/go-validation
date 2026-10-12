@@ -42,7 +42,7 @@ func Item() Segment { return Segment{kind: ItemSegment} }
 // Kind returns the segment type.
 func (s Segment) Kind() SegmentKind { return s.kind }
 
-// Value returns the segment's safe location value.
+// Value returns raw location text, without sanitation or confidentiality policy.
 func (s Segment) Value() string { return s.value }
 
 // Path is an immutable ordered location.
@@ -64,7 +64,10 @@ func (p Path) Segments() []Segment {
 	return append([]Segment(nil), p.segments...)
 }
 
-// String renders a stable human-readable location.
+// String renders a human-readable location without escaping literal dots or
+// brackets. Different typed paths can have the same display; report identity
+// uses typed structural segments rather than this rendering. Caller field/key
+// text may be sensitive. Negative indexes are rendered, not rejected here.
 func (p Path) String() string {
 	var result strings.Builder
 	for index, segment := range p.segments {

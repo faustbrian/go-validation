@@ -6,6 +6,8 @@ import validation "github.com/faustbrian/go-validation/v2"
 
 // Validator is the minimal validation contract used by configuration loaders.
 type Validator interface {
+	// Validate returns nil for complete nonblocking success, including warnings;
+	// return operational/terminal failures rather than treating them as success.
 	Validate() error
 }
 
@@ -16,7 +18,9 @@ type Check[T any] struct {
 	validator validation.Validator[T]
 }
 
-// CheckValue constructs a reusable configuration validation contract.
+// CheckValue captures shallow borrowed value/validator state without validation
+// or nil refusal. Reuse concurrently only when validator/input allow it. It
+// owns no IO, close or mutation lifecycle; use a core wrapper for panic safety.
 func CheckValue[T any](value T, ctx validation.Context,
 	validator validation.Validator[T],
 ) Check[T] {
@@ -24,7 +28,8 @@ func CheckValue[T any](value T, ctx validation.Context,
 }
 
 // Validate returns the report error when validation does not complete or the
-// value is invalid.
+// value is invalid. It directly calls the captured interface; a nil validator
+// or arbitrary implementation panic propagates. No input copy is made.
 func (check Check[T]) Validate() error {
 	return check.validator.Validate(check.context, check.value).Err()
 }

@@ -13,6 +13,9 @@ type benchmarkUser struct {
 	Name string `validate:"required,min=3,max=40"`
 }
 
+// BenchmarkValidation measures scalar, collection, composition, typed/tag
+// plan calls and bounded hostile refusal. Context/definitions/hostile inputs
+// are prepared before loops; subbenchmarks do not measure construction or IO.
 func BenchmarkValidation(b *testing.B) {
 	ctx, err := validation.NewContext(validation.DefaultLimits())
 	if err != nil {

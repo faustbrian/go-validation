@@ -1,4 +1,10 @@
-// Package structplan provides optional typed and startup-compiled struct plans.
+// Package structplan provides reflection-free typed plans and optional
+// startup-compiled validate-tag plans. New/Add/Compile or CompileTags are entry
+// points; these plans validate without binding, coercion or provider IO.
+// Builders are mutable and not concurrent; compiled definitions are immutable
+// but borrow callbacks/input. Cache serializes compilation and owns no shutdown.
+// Compile-time type cycle/depth checks do not bound runtime interface/pointer
+// dereference cycles; reflected inputs must satisfy that separate boundary.
 package structplan
 
 import (
@@ -34,7 +40,9 @@ type Builder[T any] struct {
 	names  map[string]struct{}
 }
 
-// New creates a typed plan builder.
+// New creates an owned mutable builder without validating limits until
+// Compile. Use positive/default limits; zero builder is not an initialized
+// builder. Caller owns serialized Add/Compile and borrowed callback lifetime.
 func New[T any](limits validation.Limits) *Builder[T] {
 	return &Builder[T]{limits: limits, names: make(map[string]struct{})}
 }
@@ -99,7 +107,9 @@ type Plan[T any] struct {
 	fields []fieldPlan[T]
 }
 
-// Compile snapshots the current builder into an immutable plan.
+// Compile validates limits and copies field definitions, not accessor/validator
+// state. Later Add calls do not change the plan. Nil receivers panic rather
+// than return ErrInvalidPlan; instances need serialized builder access.
 func (builder *Builder[T]) Compile() (*Plan[T], error) {
 	if _, err := validation.NewContext(builder.limits); err != nil {
 		return nil, fmt.Errorf("compile typed plan: %w", err)
@@ -108,7 +118,10 @@ func (builder *Builder[T]) Compile() (*Plan[T], error) {
 		fields: append([]fieldPlan[T](nil), builder.fields...)}, nil
 }
 
-// Validate evaluates fields in declaration order and collects all findings.
+// Validate evaluates captured fields in declaration order under caller Context
+// report limits, without recapping compiled definition count. Field callbacks
+// are panic-contained individually; terminal state stops later fields.
+// Generic inputs are borrowed and callbacks must support any concurrent reuse.
 func (plan *Plan[T]) Validate(ctx validation.Context, value T) validation.Report {
 	report := validation.NewReport(ctx.Limits())
 	for _, field := range plan.fields {

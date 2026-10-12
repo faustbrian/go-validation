@@ -78,7 +78,9 @@ func Finite() validation.Validator[float64] {
 	})
 }
 
-// Precision requires no more than decimalPlaces fractional decimal places.
+// Precision checks a scaled float64 against its nearest integer with absolute
+// tolerance 1e-9; it is not exact decimal arithmetic. Negative places,
+// nonfinite inputs/products and scaling overflow fail with precision.
 func Precision(decimalPlaces int) validation.Validator[float64] {
 	return precisionValidator(decimalPlaces, math.Pow10(decimalPlaces))
 }
@@ -97,7 +99,8 @@ func precisionValidator(decimalPlaces int, scale float64) validation.Validator[f
 	})
 }
 
-// MultipleOf requires a finite value to be an integer multiple of divisor.
+// MultipleOf uses float64 quotient-to-integer tolerance 1e-9. Divisor must be
+// positive finite; nonfinite quotients fail. It is not exact decimal divisibility.
 func MultipleOf(divisor float64) validation.Validator[float64] {
 	return validation.ValidatorFunc[float64](func(ctx validation.Context, value float64) validation.Report {
 		if divisor == 0 || math.Signbit(divisor) || math.IsInf(divisor, 0) ||

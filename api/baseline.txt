@@ -1,7 +1,15 @@
 package validation // import "github.com/faustbrian/go-validation/v2"
 
 Package validation provides typed, deterministic, bounded application validation
-without transport, binding, or persistence dependencies.
+without transport, binding, or persistence dependencies. Build a Context and use
+Validator/rules or an optional structplan; Report.Err is the complete success
+predicate, not Empty or HasErrors alone. Value preserves missing/null/present
+states without coercion, defaulting or input mutation. Generic input objects and
+callback implementations are borrowed, not deep copied; purity and concurrent
+safety remain application obligations. AsyncAll owns bounded per-call workers
+and joins admitted callbacks, but cannot preempt noncooperative work. Transport,
+IO policy and provider shutdown remain outside core; limits are selected
+budgets, not total CPU/heap caps.
 
 VARIABLES
 
@@ -21,6 +29,10 @@ var (
 TYPES
 
 type AsyncValidator[T any] interface {
+	// ValidateAsync must cooperate with a nonnil caller context and bound IO.
+	// Inputs/callback state remain borrowed; concurrent reuse requires safety.
+	// Returning does not cancel the caller or peers. Panics on direct interface
+	// calls are not contained unless wrapped or invoked through AsyncAll.
 	ValidateAsync(context.Context, Context, T) Report
 }
     AsyncValidator is the separate contract for cancellation-aware I/O
@@ -36,16 +48,25 @@ type AsyncValidatorFunc[T any] func(context.Context, Context, T) Report
 func (f AsyncValidatorFunc[T]) ValidateAsync(
 	ctx context.Context, validationContext Context, value T,
 ) (report Report)
-    ValidateAsync calls the context-aware function.
+    ValidateAsync calls the borrowed function synchronously and contains panic
+    payloads, including nil functions, as validator_panic findings. It forwards
+    caller context unchanged and does not itself mark cancellation, preempt work
+    or deep-copy input. AsyncAll captures caller terminal state separately.
 
 type Context struct {
 	// Has unexported fields.
 }
-    Context is immutable deterministic validation state. It intentionally does
-    not embed context.Context because ordinary validators cannot perform I/O.
+    Context is immutable deterministic validation state without context.Context.
+    Ordinary validators are required to avoid IO; this type cannot enforce
+    callback purity or preempt blocking code. Metadata is size-bounded,
+    not authenticated, sanitized or classified for confidentiality.
 
 func NewContext(limits Limits, options ...ContextOption) (Context, error)
-    NewContext constructs immutable validation state.
+    NewContext requires every limit to be positive; zero limits do not select
+    defaults here. Nil options are ignored, repeated metadata keys overwrite,
+    and options run synchronously without panic containment. Result metadata
+    is copied, but text is checked for byte size rather than UTF-8/privacy.
+    A zero Context uses default limits through Limits and an empty root path.
 
 func (c Context) Limits() Limits
     Limits returns the work limits. The zero-value Context uses DefaultLimits so
@@ -87,7 +108,9 @@ func WithLocale(locale string) ContextOption
     WithLocale records an application-defined locale identifier.
 
 func WithMetadata(key, value string) ContextOption
-    WithMetadata adds bounded non-sensitive metadata.
+    WithMetadata records application-asserted non-sensitive metadata. NewContext
+    applies count/key/value byte limits after options run; it does not inspect
+    confidentiality, normalize text or prevent option-time allocation.
 
 func WithOperation(operation string) ContextOption
     WithOperation records an application-defined operation identifier.
@@ -107,19 +130,32 @@ func (e *InvalidError) Unwrap() error
     Unwrap makes InvalidError compatible with errors.Is and ErrInvalid.
 
 type Limits struct {
-	MaxDepth               int
-	MaxCollectionSize      int
-	MaxStringLength        int
-	MaxViolations          int
-	MaxPathLength          int
-	MaxMetadataEntries     int
-	MaxMetadataKeyLength   int
+	// MaxDepth caps compile-time reflected struct depth (root zero), not runtime pointer/interface cycle traversal; default 32.
+	MaxDepth int
+	// MaxCollectionSize caps admitted item/key/unique work and supplied compositor/service positions, including nil; default 10000.
+	MaxCollectionSize int
+	// MaxStringLength caps checked input/catalog bytes before parsing or escaping; default 65536, not all escaped-output allocation.
+	MaxStringLength int
+	// MaxViolations caps retained findings, default 100; hidden blocking and terminal state survive truncation.
+	MaxViolations int
+	// MaxPathLength caps human-rendered path bytes at report admission, default 1024; not total path construction or escaped-pointer bytes.
+	MaxPathLength int
+	// MaxMetadataEntries caps Context metadata and violation parameter entries, default 16.
+	MaxMetadataEntries int
+	// MaxMetadataKeyLength caps Context keys and machine diagnostic code/parameter names, default 64.
+	MaxMetadataKeyLength int
+	// MaxMetadataValueLength caps Context locale/operation/metadata and diagnostic parameter bytes, default 256; not confidentiality.
 	MaxMetadataValueLength int
-	MaxRegexPatternLength  int
-	MaxCustomConcurrency   int
-	MaxStructFields        int
-	MaxTagLength           int
-	MaxCompiledPlans       int
+	// MaxRegexPatternLength caps Pattern constructor expression bytes, default 1024; not a caller-context timeout.
+	MaxRegexPatternLength int
+	// MaxCustomConcurrency caps AsyncAll workers per invocation, default 8; concurrent calls multiply the bound.
+	MaxCustomConcurrency int
+	// MaxStructFields caps typed definitions and total reflected fields visited during compilation, default 256.
+	MaxStructFields int
+	// MaxTagLength caps each visited validate tag before grammar splitting, default 1024.
+	MaxTagLength int
+	// MaxCompiledPlans caps distinct reflect.Type entries in an instance Cache, default 256; Clear permits later recompilation.
+	MaxCompiledPlans int
 }
     Limits bounds validation work performed on untrusted input.
 
@@ -154,7 +190,10 @@ func (p Path) Segments() []Segment
     Segments returns a defensive copy of the path segments.
 
 func (p Path) String() string
-    String renders a stable human-readable location.
+    String renders a human-readable location without escaping literal dots or
+    brackets. Different typed paths can have the same display; report identity
+    uses typed structural segments rather than this rendering. Caller field/key
+    text may be sensitive. Negative indexes are rendered, not rejected here.
 
 type Presence uint8
     Presence represents whether an input was omitted, explicitly null, or set.
@@ -179,24 +218,42 @@ func AsyncAll[T any](ctx context.Context, validationContext Context, value T,
     AsyncAll executes context-aware validators with bounded concurrency and
     merges their reports in declaration order. Cancellation stops unscheduled
     work; validators already running remain responsible for honoring ctx.
-    After checking caller cancellation, total supplied positions (including nil)
-    must fit MaxCollectionSize before workers or result storage are allocated.
+    After checking caller cancellation, total supplied positions (including
+    nil) must fit MaxCollectionSize before workers or result storage are
+    allocated. Require a nonnil caller context. Bounds apply per invocation;
+    concurrent calls multiply workers. Admission stops when the select observes
+    caller cancellation, not by forcibly interrupting an accepted callback.
+    Every admitted worker is joined; partial findings and hidden blocking state
+    survive terminal/truncation merging. Child terminal reports do not cancel
+    peers. The validator slice and generic input are borrowed throughout this
+    call.
 
 func ContextReport(validationContext Context, ctx context.Context) Report
     ContextReport returns an empty report that snapshots ctx.Err(). An active
-    context produces no terminal state.
+    context produces no terminal state. Require a nonnil context; nil panics
+    on direct use. Only exact standard cancellation/deadline identities are
+    retained, never a request context or custom cancellation cause.
 
 func NewReport(limits Limits) Report
-    NewReport creates an empty report governed by limits.
+    NewReport creates an empty report governed by the supplied limits without
+    validating/defaulting them. Use Context.Limits or positive DefaultLimits;
+    a zero Report can merge into a configured report but is not an admission
+    constructor with default retention bounds.
 
 func (r Report) Add(violation Violation) Report
-    Add returns a report with a violation appended if it is not a duplicate.
+    Add returns a copy-on-write report with a unique violation retained within
+    limits. Diagnostic validation precedes display-path admission; refusal
+    replaces input with fixed invalid_violation or rooted path_limit findings.
+    Blocking state is recorded before dedup/retention, so dropped errors still
+    block Err. Identity includes typed path/code/severity/sorted parameters, not
+    cause identity; causes are borrowed interfaces and are never rendered here.
 
 func (r Report) ContextError() error
     ContextError reports the captured context terminal identity, if any.
 
 func (r Report) Empty() bool
-    Empty reports whether no violations were retained.
+    Empty reports whether no violations were retained, not complete success.
+    A terminal or truncated report can be empty while Err is nonnil.
 
 func (r Report) Err() error
     Err returns a typed error if validation did not complete or contains a
@@ -213,10 +270,15 @@ func (r Report) Len() int
     Len returns the number of retained violations.
 
 func (r Report) Merge(other Report) Report
-    Merge returns a report with other's violations appended in their order.
+    Merge appends other's retained violations under receiver limits, preserving
+    hidden blocking/truncation flags. The receiver's first terminal wins. No
+    dropped finding is reconstructed, so Len/HasCode can omit a blocking reason.
 
 func (r Report) String() string
-    String returns a value-safe report summary.
+    String returns a cause/parameter-free summary. Active reports use failure-
+    oriented prose even when empty or warnings only; it is not a success test.
+    Use Err for acceptance and restrict explicit path/parameter/cause projection
+    according to application confidentiality policy.
 
 func (r Report) Truncated() bool
     Truncated reports whether a violation was omitted by the configured limit.
@@ -245,7 +307,8 @@ func (s Segment) Kind() SegmentKind
     Kind returns the segment type.
 
 func (s Segment) Value() string
-    Value returns the segment's safe location value.
+    Value returns raw location text, without sanitation or confidentiality
+    policy.
 
 type SegmentKind uint8
     SegmentKind distinguishes fields, collection indexes, keys, and items.
@@ -270,6 +333,12 @@ const (
 	Warning
 )
 type Validator[T any] interface {
+	// Validate must return ordered findings without mutating borrowed input or
+	// hiding IO. Determinism/purity are implementation obligations, not enforced
+	// by Context. Instances reused concurrently must support that concurrency.
+	// A Report may contain warnings, truncation or terminal state; use Err for
+	// complete success. Arbitrary interface panics propagate on direct calls;
+	// use IsolatePanics where containment is required.
 	Validate(Context, T) Report
 }
     Validator is the deterministic, side-effect-free validation contract.
@@ -277,12 +346,19 @@ type Validator[T any] interface {
 func All[T any](mode Mode, validators ...Validator[T]) Validator[T]
     All requires every validator to pass. The supplied positions, including nil
     entries, must fit Context.Limits().MaxCollectionSize before any invocation.
+    The supplied slice/input is borrowed across future calls. Empty/all-nil
+    inputs pass; zero/unknown Mode collects all. An arbitrary nested panic is
+    contained by the outer function adapter and can replace prior findings.
 
 func Any[T any](mode Mode, validators ...Validator[T]) Validator[T]
     Any requires at least one validator to pass. Failed alternatives are
     returned only when every alternative fails. The supplied positions,
     including nil entries, must fit Context.Limits().MaxCollectionSize before
-    any invocation.
+    any invocation. Empty/all-nil inputs also return nonblocking success.
+    If any alternative passes, only successful alternatives' findings (including
+    warnings) remain; a terminal alternative returns accumulated partial
+    findings immediately. Caller-owned validator slices must stay stable across
+    future calls.
 
 func Dependent[T any](prerequisite, dependent Validator[T]) Validator[T]
     Dependent runs dependent only when prerequisite has no blocking errors.
@@ -301,12 +377,17 @@ type ValidatorFunc[T any] func(Context, T) Report
     ValidatorFunc adapts an ordinary function to Validator.
 
 func (f ValidatorFunc[T]) Validate(ctx Context, value T) (report Report)
-    Validate calls the underlying validation function.
+    Validate calls the borrowed function synchronously and contains panics,
+    including a nil function, as a blocking validator_panic finding. Report
+    diagnostic/path budgets still apply. It cannot prevent mutation/IO/blocking
+    or force callback concurrency safety; no input deep copy is made.
 
 type Value[T any] struct {
 	// Has unexported fields.
 }
-    Value preserves presence separately from a typed value.
+    Value preserves presence separately from a typed value. Its zero value is
+    missing; Present(nil) remains present. Generic values are shallow borrowed
+    copies, so maps/slices/pointers are neither cloned nor made immutable.
 
 func Missing[T any]() Value[T]
     Missing returns an omitted typed value.
@@ -341,11 +422,15 @@ type Violation struct {
 func NewViolation(path Path, code string, severity Severity,
 	parameters map[string]string, safeCause error,
 ) Violation
-    NewViolation constructs a violation. Parameters and paths are copied;
-    malformed or unsafe diagnostic metadata fails closed.
+    NewViolation validates code/severity/parameters against DefaultLimits, not
+    a caller Context; report admission may impose stricter bounds. Parameters
+    are copied and the immutable Path value is retained. Malformed diagnostic
+    metadata fails closed; safeCause remains borrowed and application-asserted.
 
 func (v Violation) Cause() error
-    Cause returns an explicitly safe underlying cause.
+    Cause returns the borrowed application-asserted safe cause unchanged.
+    The package neither clones nor sanitizes that error; restrict introspection
+    when implementations retain sensitive configuration or input.
 
 func (v Violation) Code() string
     Code returns the machine-readable rule identity.
@@ -377,13 +462,19 @@ type Check[T any] struct {
 func CheckValue[T any](value T, ctx validation.Context,
 	validator validation.Validator[T],
 ) Check[T]
-    CheckValue constructs a reusable configuration validation contract.
+    CheckValue captures shallow borrowed value/validator state without
+    validation or nil refusal. Reuse concurrently only when validator/input
+    allow it. It owns no IO, close or mutation lifecycle; use a core wrapper for
+    panic safety.
 
 func (check Check[T]) Validate() error
     Validate returns the report error when validation does not complete or the
-    value is invalid.
+    value is invalid. It directly calls the captured interface; a nil validator
+    or arbitrary implementation panic propagates. No input copy is made.
 
 type Validator interface {
+	// Validate returns nil for complete nonblocking success, including warnings;
+	// return operational/terminal failures rather than treating them as success.
 	Validate() error
 }
     Validator is the minimal validation contract used by configuration loaders.
@@ -395,16 +486,25 @@ Package validationhttp provides router-neutral HTTP report projection.
 FUNCTIONS
 
 func WriteProblem(writer http.ResponseWriter, problem Problem) error
-    WriteProblem writes a problem without depending on a router.
+    WriteProblem writes caller-owned problem data without routing or binding.
+    Invalid status rejects before touching writer. For valid status it sets
+    the content type and writes headers before encoding; failure can leave a
+    partial response. Writer/encoder panics are not contained; encoder errors
+    are returned unchanged. Nil writer rejects only through ordinary Go panic,
+    not a typed check.
 
 
 TYPES
 
 type Error struct {
-	Path       string            `json:"path"`
-	Code       string            `json:"code"`
+	// Path is the human display path, which may contain application names.
+	Path string `json:"path"`
+	// Code is the stable machine identity.
+	Code string `json:"code"`
+	// Parameters is a defensive copy of application-asserted public-safe rule parameters.
 	Parameters map[string]string `json:"parameters,omitempty"`
-	Severity   string            `json:"severity"`
+	// Severity is error or warning from the source finding.
+	Severity string `json:"severity"`
 }
     Error is one safe HTTP validation finding.
 
@@ -412,12 +512,20 @@ type Hook[T any] func(*http.Request, T) validation.Report
     Hook is a transport integration seam that does not own routing or binding.
 
 func (hook Hook[T]) Validate(request *http.Request, value T) validation.Report
-    Validate invokes the application-supplied request validation hook.
+    Validate borrows request/value and invokes the hook synchronously with
+    core panic containment/default validation limits. Nil hooks produce panic
+    findings; nil requests are forwarded. Mutation, request-body ownership,
+    cancellation handling and latency remain application obligations; no body is
+    read/closed.
 
 type Problem struct {
-	Type   string  `json:"type"`
-	Title  string  `json:"title"`
-	Status int     `json:"status"`
+	// Type is an application-overridable problem URI; FromReport uses the package fixed type.
+	Type string `json:"type"`
+	// Title is mutable public prose; FromReport selects warnings or failure text.
+	Title string `json:"title"`
+	// Status is the projected 200/422 status; WriteProblem accepts manually supplied statuses only within 100..999.
+	Status int `json:"status"`
+	// Errors is a detached ordered finding slice; causes/terminal context are not included.
 	Errors []Error `json:"errors"`
 	// Truncated reports whether findings were omitted by MaxViolations.
 	Truncated bool `json:"truncated,omitempty"`
@@ -436,8 +544,10 @@ and aggregation metadata are package-owned extensions.
 TYPES
 
 type Document struct {
-	Errors []Error      `json:"errors"`
-	Meta   DocumentMeta `json:"meta"`
+	// Errors holds detached ordered retained findings; it is empty, not omitted, when there are none.
+	Errors []Error `json:"errors"`
+	// Meta preserves hidden blocking/truncation state independently from retained errors.
+	Meta DocumentMeta `json:"meta"`
 }
     Document is a JSON:API error document with report-level metadata.
 
@@ -446,26 +556,35 @@ func Errors(report validation.Report) Document
     must route context termination before calling it.
 
 type DocumentMeta struct {
+	// Truncated reports omitted findings, not total omitted count.
 	Truncated bool `json:"truncated"`
+	// HasErrors remains true when blocking findings were dropped by retention limits.
 	HasErrors bool `json:"has_errors"`
 }
     DocumentMeta preserves aggregation state.
 
 type Error struct {
-	Status string    `json:"status"`
-	Code   string    `json:"code"`
-	Source Source    `json:"source"`
-	Meta   ErrorMeta `json:"meta"`
+	// Status is the per-finding string 422 for blocking errors or 200 for warnings, not a response-writer decision.
+	Status string `json:"status"`
+	// Code is the stable machine rule identity.
+	Code string `json:"code"`
+	// Source serializes a caller-owned typed path as a pointer, not proof that the request location exists.
+	Source Source `json:"source"`
+	// Meta contains copied parameters and package-defined severity extensions.
+	Meta ErrorMeta `json:"meta"`
 }
     Error is a JSON:API validation error object.
 
 type ErrorMeta struct {
+	// Parameters is a defensive copy, with confidentiality asserted by the application.
 	Parameters map[string]string `json:"parameters,omitempty"`
-	Severity   string            `json:"severity"`
+	// Severity is error or warning; this is package-owned JSON:API metadata.
+	Severity string `json:"severity"`
 }
     ErrorMeta preserves safe rule parameters and severity.
 
 type Source struct {
+	// Pointer is RFC6901 token serialization; generic Item emits -, without JSON Patch or pointer-evaluation semantics.
 	Pointer string `json:"pointer"`
 }
     Source identifies the invalid document location.
@@ -478,16 +597,22 @@ The data member is a package-owned JSON-RPC 2.0 extension.
 TYPES
 
 type Data struct {
+	// Violations is a detached ordered finding slice, excluding causes/terminal context.
 	Violations []Violation `json:"violations"`
-	Truncated  bool        `json:"truncated,omitempty"`
-	HasErrors  bool        `json:"has_errors"`
+	// Truncated marks report retention loss; omitted when false in JSON.
+	Truncated bool `json:"truncated,omitempty"`
+	// HasErrors preserves blocking state even when retained findings are warnings only.
+	HasErrors bool `json:"has_errors"`
 }
     Data is the stable machine-readable invalid-params payload.
 
 type Error struct {
-	Code    int    `json:"code"`
+	// Code is -32602 from InvalidParams, including warning-only projected reports.
+	Code int `json:"code"`
+	// Message is fixed Invalid params from the projector, not localized rule prose.
 	Message string `json:"message"`
-	Data    Data   `json:"data"`
+	// Data is package-defined extension data, not a complete JSON-RPC envelope.
+	Data Data `json:"data"`
 }
     Error is a JSON-RPC error object.
 
@@ -496,10 +621,14 @@ func InvalidParams(report validation.Report) Error
     Applications must route context termination before calling it.
 
 type Violation struct {
-	Path       string            `json:"path"`
-	Code       string            `json:"code"`
+	// Path is the human display path rather than JSON Pointer; application names can be sensitive.
+	Path string `json:"path"`
+	// Code is the machine rule identity.
+	Code string `json:"code"`
+	// Parameters is copied application-asserted public-safe data, not a redaction guarantee.
 	Parameters map[string]string `json:"parameters,omitempty"`
-	Severity   string            `json:"severity"`
+	// Severity is error or warning from the source finding.
+	Severity string `json:"severity"`
 }
     Violation is a safe JSON-RPC validation finding.
 
@@ -515,22 +644,37 @@ type Hook[T any] func(context.Context, validation.Context, T) validation.Report
 func (hook Hook[T]) Validate(ctx context.Context,
 	validationContext validation.Context, value T,
 ) validation.Report
-    Validate invokes the service hook.
+    Validate invokes the borrowed hook synchronously with core panic
+    containment and supplied validation limits. Nil hook panics become findings;
+    cancellation is forwarded rather than captured here. No callback
+    preemption/input copy or provider lifecycle is owned.
 
 type Validator[T any] interface {
+	// Validate borrows caller context/input and must return cooperatively.
+	// Instances reused concurrently must support it; direct interface panics
+	// propagate unless invoked through a containing Hook/Chain boundary.
 	Validate(context.Context, validation.Context, T) validation.Report
 }
     Validator is a cancellation-aware service-boundary validation contract.
 
 func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
-    Chain evaluates service hooks in declaration order and preserves caller
-    cancellation or deadline as a terminal validation outcome. Total supplied
-    positions, including nil, must fit MaxCollectionSize before invocation;
-    caller cancellation takes precedence over this admission.
+    Chain evaluates service hooks in declaration order and preserves
+    caller cancellation or deadline as a terminal validation outcome.
+    Total supplied positions, including nil, must fit MaxCollectionSize before
+    invocation; caller cancellation takes precedence over this admission.
+    The validator slice is borrowed until future calls, not copied at creation.
+    Unknown/zero Mode behaves as CollectAll. Chain owns no workers or shutdown;
+    each direct provider must return before terminal state can be captured.
+    A provider panic aborts this invocation through the Hook boundary and can
+    replace already accumulated findings with the core panic report.
 
 package rules // import "github.com/faustbrian/go-validation/v2/rules"
 
-Package rules provides reusable typed deterministic validators.
+Package rules provides typed validators without coercion/defaulting.
+Use constructors to compose core Validator values; generic inputs/callbacks
+are borrowed, not deep copied. These are package-defined bounded syntactic and
+Go comparison profiles, not full URL/email/UUID or numerical specification
+conformance. Core function adapters contain panics, not arbitrary blocking.
 
 FUNCTIONS
 
@@ -584,7 +728,9 @@ func GreaterThan[T cmp.Ordered](boundary T) validation.Validator[T]
     GreaterThan requires a value strictly greater than boundary.
 
 func Hostname() validation.Validator[string]
-    Hostname requires an RFC-style DNS hostname bounded to 253 bytes.
+    Hostname checks ASCII DNS-style labels with normalized length at most 253
+    after removing one trailing dot for checking only. It performs no DNS/IDNA
+    lookup, changes no input value and makes no complete standards claim.
 
 func IP() validation.Validator[string]
     IP requires an IPv4 or IPv6 literal.
@@ -607,7 +753,9 @@ func MapSize[K comparable, V any](minimum, maximum int) validation.Validator[map
     MapSize requires an inclusive map-size range.
 
 func MultipleOf(divisor float64) validation.Validator[float64]
-    MultipleOf requires a finite value to be an integer multiple of divisor.
+    MultipleOf uses float64 quotient-to-integer tolerance 1e-9. Divisor must
+    be positive finite; nonfinite quotients fail. It is not exact decimal
+    divisibility.
 
 func Nested[T, V any](field string, accessor func(T) V,
 	validator validation.Validator[V],
@@ -632,7 +780,9 @@ func Pattern(expression string,
     Pattern compiles a bounded RE2 expression once and returns its validator.
 
 func Precision(decimalPlaces int) validation.Validator[float64]
-    Precision requires no more than decimalPlaces fractional decimal places.
+    Precision checks a scaled float64 against its nearest integer with absolute
+    tolerance 1e-9; it is not exact decimal arithmetic. Negative places,
+    nonfinite inputs/products and scaling overflow fail with precision.
 
 func Prefix(prefix string) validation.Validator[string]
     Prefix requires a literal prefix.
@@ -670,16 +820,23 @@ func URL() validation.Validator[string]
     URL requires an absolute HTTP or HTTPS URL with a host.
 
 func UUID() validation.Validator[string]
-    UUID requires a canonical RFC 9562 UUID string.
+    UUID accepts case-insensitive hyphenated UUID text with version 1..8 and
+    RFC variant bits. Nil/max special forms are rejected; this is a package
+    syntactic profile, not complete RFC9562 validation.
 
 func Unique[T comparable]() validation.Validator[[]T]
-    Unique requires every comparable slice item to occur once.
+    Unique uses Go comparable equality after collection admission. NaNs do not
+    compare equal and therefore can repeat; dynamic noncomparable any values
+    become validator_panic findings through the function adapter. It does not
+    canonicalize values or implement JSON structural equality.
 
 func Values[K cmp.Ordered, V any](mode validation.Mode,
 	validator validation.Validator[V],
 ) validation.Validator[map[K]V]
-    Values validates map values in sorted key order and locates each finding at
-    its typed key segment.
+    Values validates map values in sorted key order and locates each finding
+    at its typed key segment. Ordinary Go map equality/lookup applies: NaN
+    floating keys cannot be retrieved and yield the zero V; they do not provide
+    a dependable keyed-validation location. Inputs must remain unchanged.
 
 func ZeroValue[T any]() validation.Validator[validation.Value[T]]
     ZeroValue accepts only a present Go zero value.
@@ -687,18 +844,31 @@ func ZeroValue[T any]() validation.Validator[validation.Value[T]]
 
 TYPES
 
-type Clock interface{ Now() time.Time }
+type Clock interface {
+	// Now is called on each Future/Past validation. Caller owns deterministic
+	// values and concurrent safety; nil/panic calls become core panic findings.
+	Now() time.Time
+}
     Clock supplies explicit deterministic current time.
 
 type Interval struct {
+	// Start is the application start boundary; no timezone/precision normalization is performed.
 	Start time.Time
-	End   time.Time
+	// End is the application end boundary. OrderedInterval permits equality; other rules choose interval inclusion.
+	End time.Time
 }
-    Interval is a closed-open application time interval.
+    Interval groups application time boundaries; the type enforces neither
+    endpoint inclusion nor duration. OrderedInterval only checks their order.
 
 package structplan // import "github.com/faustbrian/go-validation/v2/structplan"
 
-Package structplan provides optional typed and startup-compiled struct plans.
+Package structplan provides reflection-free typed plans and optional
+startup-compiled validate-tag plans. New/Add/Compile or CompileTags are
+entry points; these plans validate without binding, coercion or provider IO.
+Builders are mutable and not concurrent; compiled definitions are immutable
+but borrow callbacks/input. Cache serializes compilation and owns no shutdown.
+Compile-time type cycle/depth checks do not bound runtime interface/pointer
+dereference cycles; reflected inputs must satisfy that separate boundary.
 
 VARIABLES
 
@@ -735,10 +905,15 @@ type Builder[T any] struct {
     Builder incrementally defines a reflection-free typed struct plan.
 
 func New[T any](limits validation.Limits) *Builder[T]
-    New creates a typed plan builder.
+    New creates an owned mutable builder without validating limits until
+    Compile. Use positive/default limits; zero builder is not an initialized
+    builder. Caller owns serialized Add/Compile and borrowed callback lifetime.
 
 func (builder *Builder[T]) Compile() (*Plan[T], error)
-    Compile snapshots the current builder into an immutable plan.
+    Compile validates limits and copies field definitions, not
+    accessor/validator state. Later Add calls do not change the plan. Nil
+    receivers panic rather than return ErrInvalidPlan; instances need serialized
+    builder access.
 
 type Cache struct {
 	// Has unexported fields.
@@ -746,10 +921,15 @@ type Cache struct {
     Cache is an instance-owned bounded cache of immutable compiled tag plans.
 
 func NewCache(limits validation.Limits) *Cache
-    NewCache creates an empty bounded plan cache.
+    NewCache creates an owned cache without upfront limits validation.
+    Use DefaultLimits/positive fields; CompileCached checks capacity before tag
+    compilation validates remaining limits. Zero Cache is not initialized.
 
 func (cache *Cache) Clear()
-    Clear removes all cached immutable plans.
+    Clear removes cached entries under the instance lock. Returned immutable
+    plans remain valid; later calls may compile a new plan for the same type.
+    Len/Clear on nil receivers panic; no closed state or provider shutdown
+    exists.
 
 func (cache *Cache) Len() int
     Len returns the current number of cached plans.
@@ -760,7 +940,10 @@ type Plan[T any] struct {
     Plan is an immutable reflection-free typed struct plan.
 
 func (plan *Plan[T]) Validate(ctx validation.Context, value T) validation.Report
-    Validate evaluates fields in declaration order and collects all findings.
+    Validate evaluates captured fields in declaration order under caller Context
+    report limits, without recapping compiled definition count. Field callbacks
+    are panic-contained individually; terminal state stops later fields.
+    Generic inputs are borrowed and callbacks must support any concurrent reuse.
 
 type TagPlan[T any] struct {
 	// Has unexported fields.
@@ -768,13 +951,28 @@ type TagPlan[T any] struct {
     TagPlan is an immutable startup-compiled reflective plan.
 
 func CompileCached[T any](cache *Cache) (*TagPlan[T], error)
-    CompileCached compiles or reuses the cached plan for T.
+    CompileCached uses reflect.Type identity and holds the cache lock through
+    trusted CompileTags; no application callbacks or IO execute under that lock.
+    Failed compilation consumes no entry. The cache owns definitions, not input
+    instances or validators, and nil cache rejects with ErrInvalidPlan.
 
 func CompileTags[T any](limits validation.Limits) (*TagPlan[T], error)
-    CompileTags strictly compiles validate tags for T.
+    CompileTags requires a struct root (not a root pointer) and positive limits.
+    It checks grammar, inaccessible tagged fields, visited field count and
+    compile-time struct-type cycles/depth. Untagged exported structs/pointers
+    recurse; tagged fields retain runtime rule dispatch, including interfaces.
+    It does not prove runtime dereference termination or reject every rule/kind
+    incompatibility at construction. Causes retain private type/tag diagnostics
+    behind fixed outer categories; restrict explicit cause introspection.
 
 func (plan *TagPlan[T]) Validate(ctx validation.Context, value T) validation.Report
-    Validate evaluates precompiled fields in deterministic declaration order.
+    Validate evaluates fields in compiled declaration order without coercion
+    or mutation, using caller Context string/collection/path/report bounds.
+    Required fails missing/nil values; non-required rules skip them. Unsupported
+    concrete rule/kind combinations fail during validation rather than startup.
+    Runtime pointer/interface chains must be acyclic: indirect/required
+    traversal has no cycle counter or cancellation and can loop on cyclic object
+    graphs. This is an existing runtime limitation, not type-cycle conformance.
 
 package validationconfig // import "github.com/faustbrian/go-validation/v2/validationconfig"
 
@@ -794,13 +992,19 @@ type Check[T any] struct {
 func CheckValue[T any](value T, ctx validation.Context,
 	validator validation.Validator[T],
 ) Check[T]
-    CheckValue constructs a reusable configuration validation contract.
+    CheckValue captures shallow borrowed value/validator state without
+    validation or nil refusal. Reuse concurrently only when validator/input
+    allow it. It owns no IO, close or mutation lifecycle; use a core wrapper for
+    panic safety.
 
 func (check Check[T]) Validate() error
     Validate returns the report error when validation does not complete or the
-    value is invalid.
+    value is invalid. It directly calls the captured interface; a nil validator
+    or arbitrary implementation panic propagates. No input copy is made.
 
 type Validator interface {
+	// Validate returns nil for complete nonblocking success, including warnings;
+	// return operational/terminal failures rather than treating them as success.
 	Validate() error
 }
     Validator is the minimal validation contract used by configuration loaders.
@@ -816,16 +1020,25 @@ and two published stable minor releases.
 FUNCTIONS
 
 func WriteProblem(writer http.ResponseWriter, problem Problem) error
-    WriteProblem writes a problem without depending on a router.
+    WriteProblem writes caller-owned problem data without routing or binding.
+    Invalid status rejects before touching writer. For valid status it sets
+    the content type and writes headers before encoding; failure can leave a
+    partial response. Writer/encoder panics are not contained; encoder errors
+    are returned unchanged. Nil writer rejects only through ordinary Go panic,
+    not a typed check.
 
 
 TYPES
 
 type Error struct {
-	Path       string            `json:"path"`
-	Code       string            `json:"code"`
+	// Path is the human display path, which may contain application names.
+	Path string `json:"path"`
+	// Code is the stable machine identity.
+	Code string `json:"code"`
+	// Parameters is a defensive copy of application-asserted public-safe rule parameters.
 	Parameters map[string]string `json:"parameters,omitempty"`
-	Severity   string            `json:"severity"`
+	// Severity is error or warning from the source finding.
+	Severity string `json:"severity"`
 }
     Error is one safe HTTP validation finding.
 
@@ -833,12 +1046,20 @@ type Hook[T any] func(*http.Request, T) validation.Report
     Hook is a transport integration seam that does not own routing or binding.
 
 func (hook Hook[T]) Validate(request *http.Request, value T) validation.Report
-    Validate invokes the application-supplied request validation hook.
+    Validate borrows request/value and invokes the hook synchronously with
+    core panic containment/default validation limits. Nil hooks produce panic
+    findings; nil requests are forwarded. Mutation, request-body ownership,
+    cancellation handling and latency remain application obligations; no body is
+    read/closed.
 
 type Problem struct {
-	Type   string  `json:"type"`
-	Title  string  `json:"title"`
-	Status int     `json:"status"`
+	// Type is an application-overridable problem URI; FromReport uses the package fixed type.
+	Type string `json:"type"`
+	// Title is mutable public prose; FromReport selects warnings or failure text.
+	Title string `json:"title"`
+	// Status is the projected 200/422 status; WriteProblem accepts manually supplied statuses only within 100..999.
+	Status int `json:"status"`
+	// Errors is a detached ordered finding slice; causes/terminal context are not included.
 	Errors []Error `json:"errors"`
 	// Truncated reports whether findings were omitted by MaxViolations.
 	Truncated bool `json:"truncated,omitempty"`
@@ -861,8 +1082,10 @@ availability and two published stable minor releases.
 TYPES
 
 type Document struct {
-	Errors []Error      `json:"errors"`
-	Meta   DocumentMeta `json:"meta"`
+	// Errors holds detached ordered retained findings; it is empty, not omitted, when there are none.
+	Errors []Error `json:"errors"`
+	// Meta preserves hidden blocking/truncation state independently from retained errors.
+	Meta DocumentMeta `json:"meta"`
 }
     Document is a JSON:API error document with report-level metadata.
 
@@ -871,54 +1094,77 @@ func Errors(report validation.Report) Document
     must route context termination before calling it.
 
 type DocumentMeta struct {
+	// Truncated reports omitted findings, not total omitted count.
 	Truncated bool `json:"truncated"`
+	// HasErrors remains true when blocking findings were dropped by retention limits.
 	HasErrors bool `json:"has_errors"`
 }
     DocumentMeta preserves aggregation state.
 
 type Error struct {
-	Status string    `json:"status"`
-	Code   string    `json:"code"`
-	Source Source    `json:"source"`
-	Meta   ErrorMeta `json:"meta"`
+	// Status is the per-finding string 422 for blocking errors or 200 for warnings, not a response-writer decision.
+	Status string `json:"status"`
+	// Code is the stable machine rule identity.
+	Code string `json:"code"`
+	// Source serializes a caller-owned typed path as a pointer, not proof that the request location exists.
+	Source Source `json:"source"`
+	// Meta contains copied parameters and package-defined severity extensions.
+	Meta ErrorMeta `json:"meta"`
 }
     Error is a JSON:API validation error object.
 
 type ErrorMeta struct {
+	// Parameters is a defensive copy, with confidentiality asserted by the application.
 	Parameters map[string]string `json:"parameters,omitempty"`
-	Severity   string            `json:"severity"`
+	// Severity is error or warning; this is package-owned JSON:API metadata.
+	Severity string `json:"severity"`
 }
     ErrorMeta preserves safe rule parameters and severity.
 
 type Source struct {
+	// Pointer is RFC6901 token serialization; generic Item emits -, without JSON Patch or pointer-evaluation semantics.
 	Pointer string `json:"pointer"`
 }
     Source identifies the invalid document location.
 
 package validationobserve // import "github.com/faustbrian/go-validation/v2/validationobserve"
 
-Package validationobserve exposes non-sensitive observation hooks.
+Package validationobserve emits findings-only code/severity/operation
+observations through Report. It omits paths, parameters, causes and values,
+but syntactically valid application labels can still be confidential or
+high-cardinality. Observers are borrowed synchronous callbacks with caller-
+owned concurrency, lifetime and latency; no provider goroutines are started.
 
 FUNCTIONS
 
 func Report(ctx validation.Context, report validation.Report, observer Observer)
-    Report emits one safe observation per retained violation.
+    Report emits one observation per retained violation, excluding
+    omitted findings/terminal state. Nil observer is not guarded; observer
+    panics/blocking propagate. Operation syntax screening is not automatic
+    secrecy protection.
 
 
 TYPES
 
 type Observation struct {
-	Code      string
-	Severity  string
+	// Code is a retained machine code; application-defined identities can still be confidential/high-cardinality.
+	Code string
+	// Severity is error or warning.
+	Severity string
+	// Operation is caller Context operation, with non-label characters replaced; syntax checks are not privacy classification.
 	Operation string
 }
     Observation contains bounded labels only. It intentionally excludes paths,
     parameters, causes, and rejected values.
 
 type Observer interface {
+	// Observe runs synchronously, once per retained finding; no panic/latency
+	// containment, nil guard or aggregate truncation/terminal observation is
+	// added. Caller owns observer lifetime, privacy and concurrent safety.
 	Observe(Observation)
 }
-    Observer receives safe validation observations.
+    Observer receives bounded machine labels, not confidentiality-classified
+    data.
 
 package validationrpc // import "github.com/faustbrian/go-validation/v2/validationrpc"
 
@@ -932,16 +1178,22 @@ availability and two published stable minor releases.
 TYPES
 
 type Data struct {
+	// Violations is a detached ordered finding slice, excluding causes/terminal context.
 	Violations []Violation `json:"violations"`
-	Truncated  bool        `json:"truncated,omitempty"`
-	HasErrors  bool        `json:"has_errors"`
+	// Truncated marks report retention loss; omitted when false in JSON.
+	Truncated bool `json:"truncated,omitempty"`
+	// HasErrors preserves blocking state even when retained findings are warnings only.
+	HasErrors bool `json:"has_errors"`
 }
     Data is the stable machine-readable invalid-params payload.
 
 type Error struct {
-	Code    int    `json:"code"`
+	// Code is -32602 from InvalidParams, including warning-only projected reports.
+	Code int `json:"code"`
+	// Message is fixed Invalid params from the projector, not localized rule prose.
 	Message string `json:"message"`
-	Data    Data   `json:"data"`
+	// Data is package-defined extension data, not a complete JSON-RPC envelope.
+	Data Data `json:"data"`
 }
     Error is a JSON-RPC error object.
 
@@ -950,10 +1202,14 @@ func InvalidParams(report validation.Report) Error
     Applications must route context termination before calling it.
 
 type Violation struct {
-	Path       string            `json:"path"`
-	Code       string            `json:"code"`
+	// Path is the human display path rather than JSON Pointer; application names can be sensitive.
+	Path string `json:"path"`
+	// Code is the machine rule identity.
+	Code string `json:"code"`
+	// Parameters is copied application-asserted public-safe data, not a redaction guarantee.
 	Parameters map[string]string `json:"parameters,omitempty"`
-	Severity   string            `json:"severity"`
+	// Severity is error or warning from the source finding.
+	Severity string `json:"severity"`
 }
     Violation is a safe JSON-RPC validation finding.
 
@@ -973,18 +1229,29 @@ type Hook[T any] func(context.Context, validation.Context, T) validation.Report
 func (hook Hook[T]) Validate(ctx context.Context,
 	validationContext validation.Context, value T,
 ) validation.Report
-    Validate invokes the service hook.
+    Validate invokes the borrowed hook synchronously with core panic
+    containment and supplied validation limits. Nil hook panics become findings;
+    cancellation is forwarded rather than captured here. No callback
+    preemption/input copy or provider lifecycle is owned.
 
 type Validator[T any] interface {
+	// Validate borrows caller context/input and must return cooperatively.
+	// Instances reused concurrently must support it; direct interface panics
+	// propagate unless invoked through a containing Hook/Chain boundary.
 	Validate(context.Context, validation.Context, T) validation.Report
 }
     Validator is a cancellation-aware service-boundary validation contract.
 
 func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
-    Chain evaluates service hooks in declaration order and preserves caller
-    cancellation or deadline as a terminal validation outcome. Total supplied
-    positions, including nil, must fit MaxCollectionSize before invocation;
-    caller cancellation takes precedence over this admission.
+    Chain evaluates service hooks in declaration order and preserves
+    caller cancellation or deadline as a terminal validation outcome.
+    Total supplied positions, including nil, must fit MaxCollectionSize before
+    invocation; caller cancellation takes precedence over this admission.
+    The validator slice is borrowed until future calls, not copied at creation.
+    Unknown/zero Mode behaves as CollectAll. Chain owns no workers or shutdown;
+    each direct provider must return before terminal state can be captured.
+    A provider panic aborts this invocation through the Hook boundary and can
+    replace already accumulated findings with the core panic report.
 
 package validationtest // import "github.com/faustbrian/go-validation/v2/validationtest"
 
@@ -1001,45 +1268,67 @@ func Conformance[T any](t TestingT, ctx validation.Context,
 func RejectMutations[T any](t TestingT, ctx validation.Context,
 	validator validation.Validator[T], mutations []T,
 )
-    RejectMutations proves that every supplied defect is rejected.
+    RejectMutations requires each supplied value to complete with blocking
+    findings. It is a consumer helper, not proof of an exhaustive mutation
+    campaign; inputs/validator are borrowed without fanout limits or
+    containment.
 
 func RequireCode(t TestingT, report validation.Report, code string)
     RequireCode fails the test unless report contains code.
 
 func RequireValid(t TestingT, report validation.Report)
-    RequireValid fails the test when report contains any violation.
+    RequireValid requires complete nonblocking success; warning-only reports
+    pass. It refuses captured cancellation/deadline before checking Err.
 
 
 TYPES
 
 type Case[T any] struct {
-	Name  string
+	// Name is a test diagnostic label, not validation configuration.
+	Name string
+	// Value is a shallow borrowed fixture value.
 	Value T
+	// Valid requires Empty for positive conformance cases, including rejection of warnings; this differs from RequireValid.
 	Valid bool
+	// Codes lists required retained codes for negative cases; it is not exact finding equality.
 	Codes []string
 }
     Case is a reusable typed validation fixture.
 
 type TestingT interface {
+	// Helper marks the helper call site without changing the validation result.
 	Helper()
+	// Fatalf reports a failed assertion; conventional implementations stop the
+	// test, but helpers also return after captured terminal-state refusal.
 	Fatalf(format string, arguments ...any)
 }
     TestingT is the subset of testing.TB used by these helpers.
 
 package validationtext // import "github.com/faustbrian/go-validation/v2/validationtext"
 
-Package validationtext applies application-supplied message catalogs.
+Package validationtext applies borrowed application catalogs through Messages
+without changing machine identity. It owns no provider IO, worker or shutdown;
+callback privacy/concurrency/latency remain caller obligations. Lookup
+panics/unsafe text yield empty prose, while accepted text is HTML escaped.
+Caller-owned result slices do not retain mutable parameter maps.
 
 TYPES
 
 type Catalog interface {
+	// Lookup receives copied parameters but borrowed provider state. Return
+	// promptly without IO hidden behind an unbounded sync call; concurrent
+	// reuse requires safety. Panic/missing/unsafe text becomes empty Text,
+	// without changing machine identity or exposing the panic payload.
 	Lookup(locale, code string, parameters map[string]string) (string, bool)
 }
     Catalog looks up application-facing prose without changing rule semantics.
 
 type Message struct {
+	// Path is the raw human display path; only translated Text receives HTML escaping.
 	Path string
+	// Code is the unchanged machine rule identity.
 	Code string
+	// Text is HTML-escaped accepted catalog prose or empty on refusal; escaping can expand beyond the pre-escape byte bound.
 	Text string
 }
     Message pairs immutable machine identity with optional localized prose.
@@ -1048,4 +1337,8 @@ func Messages(ctx validation.Context, report validation.Report,
 	catalog Catalog,
 ) []Message
     Messages translates findings in report order. Missing entries leave Text
-    empty rather than embedding core fallback prose.
+    empty rather than embedding core fallback prose. Lookup is synchronous
+    and panic-contained, not preemptible. Accepted text is checked before HTML
+    escaping, which can expand output. Path/code are unchanged and unescaped;
+    captured terminal/truncation state is not included in this finding-only
+    list.

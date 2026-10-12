@@ -72,6 +72,8 @@ deprecated in favor of the target
 paths above and remain supported for the longer of 180 days after successor
 public availability and two published stable minor releases.
 
+See the [source documentation audit](source-documentation-audit.md) for the
+source-grounded contracts, variants, existing limitations and selected proof.
 All exported APIs have Go documentation. The core has no global registry and
 no package-owned mutable singleton. Exact standards boundaries are recorded in
 the [specification decision register](specification-decisions.md).

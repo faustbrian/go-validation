@@ -8,6 +8,8 @@ import (
 	validationjsonapi "github.com/faustbrian/go-validation/v2/adapters/jsonapi"
 )
 
+// FuzzProjectionPaths requires JSON marshaling of admitted projected paths/
+// codes; it is wire-safety evidence, not a complete JSON:API conformance oracle.
 func FuzzProjectionPaths(f *testing.F) {
 	f.Add("a/b~c", "required")
 	f.Fuzz(func(t *testing.T, field, code string) {

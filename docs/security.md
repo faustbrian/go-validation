@@ -34,9 +34,9 @@ values. Paths are locations and can contain caller field/key text, so
 | Log/metric injection | observation labels exclude paths, values, parameters, and causes; invalid custom labels are replaced |
 | CPU or memory denial | string/collection/depth/field/tag/path/violation/regex/cache/concurrency limits, including total supplied compositor/service-chain positions before invocation or async result/worker allocation |
 | Regex denial | startup compilation with Go RE2 and pattern-length bound |
-| Reflection panic/recursion | startup kind checks, inaccessible-field errors, cycle/depth detection |
+| Reflection panic/recursion | root-kind/grammar/inaccessible-field checks and compile-time type cycle/depth detection; runtime interface/pointer dereference cycles remain an existing unbounded limitation |
 | Custom panic | function adapters contain panics; sync/async wrappers protect arbitrary implementations; payloads are discarded |
-| Hidden I/O/deadlock | I/O uses separate context-aware async contract |
+| Hidden I/O/deadlock | separate context-aware async contract makes IO explicit; purity and cooperative return remain application obligations |
 | Cancellation disclosure | reports retain only the standard terminal identity, never a request context or custom cancellation cause |
 
 ## Resource budgets
@@ -59,8 +59,12 @@ values. Paths are locations and can contain caller field/key text, so
 | Cached plans | 256 | instance cache |
 
 Applications should lower limits for smaller protocols. Limits must be
-positive. The zero-value `Context` safely uses default limits. Caller maps,
-slices, pointers, and objects are read but not mutated.
+positive. The zero-value `Context` safely uses default limits. Package-owned
+validators read caller maps, slices, pointers and objects without
+mutating them, but do not clone those object graphs. Concurrent mutation is
+not safe. Runtime reflected pointer/interface cycles are not bounded by the
+compile-time MaxDepth/type-cycle checks; do not treat these budgets as complete
+hostile object-graph termination proof.
 Custom validators remain application code and can violate the non-mutation
 rule; isolate them by ownership and review, not by assuming Go can enforce
 purity. `ValidatorFunc` and `AsyncValidatorFunc` contain panics automatically.

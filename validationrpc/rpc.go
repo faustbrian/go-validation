@@ -10,24 +10,34 @@ import validation "github.com/faustbrian/go-validation/v2"
 
 // Error is a JSON-RPC error object.
 type Error struct {
-	Code    int    `json:"code"`
+	// Code is -32602 from InvalidParams, including warning-only projected reports.
+	Code int `json:"code"`
+	// Message is fixed Invalid params from the projector, not localized rule prose.
 	Message string `json:"message"`
-	Data    Data   `json:"data"`
+	// Data is package-defined extension data, not a complete JSON-RPC envelope.
+	Data Data `json:"data"`
 }
 
 // Data is the stable machine-readable invalid-params payload.
 type Data struct {
+	// Violations is a detached ordered finding slice, excluding causes/terminal context.
 	Violations []Violation `json:"violations"`
-	Truncated  bool        `json:"truncated,omitempty"`
-	HasErrors  bool        `json:"has_errors"`
+	// Truncated marks report retention loss; omitted when false in JSON.
+	Truncated bool `json:"truncated,omitempty"`
+	// HasErrors preserves blocking state even when retained findings are warnings only.
+	HasErrors bool `json:"has_errors"`
 }
 
 // Violation is a safe JSON-RPC validation finding.
 type Violation struct {
-	Path       string            `json:"path"`
-	Code       string            `json:"code"`
+	// Path is the human display path rather than JSON Pointer; application names can be sensitive.
+	Path string `json:"path"`
+	// Code is the machine rule identity.
+	Code string `json:"code"`
+	// Parameters is copied application-asserted public-safe data, not a redaction guarantee.
 	Parameters map[string]string `json:"parameters,omitempty"`
-	Severity   string            `json:"severity"`
+	// Severity is error or warning from the source finding.
+	Severity string `json:"severity"`
 }
 
 // InvalidParams projects findings using the standard -32602 error code.

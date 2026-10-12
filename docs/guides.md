@@ -38,7 +38,12 @@ Dynamic interface values use their concrete value. Aliases use their
 underlying kind. Arrays, maps, and slices use length and honor
 `MaxCollectionSize`; integers, unsigned integers, and floats use numeric
 bounds. Plans are
-immutable. `Cache` is instance-owned, bounded, concurrency-safe, and clearable.
+immutable. Rule/kind incompatibility can fail at validation instead of startup.
+Compile-time type-cycle/depth checks do not protect cyclic runtime interface/
+pointer graphs: dereferencing currently has no cycle/depth counter and can
+loop. This existing limitation requires separately scoped repair, not a change
+to expected safety policy. `Cache` is instance-owned, bounded, concurrency-safe,
+and clearable; returned plans remain valid after Clear.
 
 ## Composition and cross-field rules
 
@@ -124,8 +129,11 @@ cancellation-aware boundary validation without depending on service types.
 
 ## Custom validators and observation
 
-Adapt a function with `ValidatorFunc[T]`. Package-owned validators do not
-panic. If an application validator is not trusted, wrap it explicitly with
+Adapt a function with `ValidatorFunc[T]`. Function adapters contain validator
+panics; arbitrary interface providers, config/observer collaborators and writer
+operations can still panic or block. If an application validator is not
+trusted, wrap it explicitly with
 `IsolatePanics`; the panic payload is discarded. `validationobserve.Report`
 emits code, severity, and operation only—never paths, parameters, causes, or
-values—so it can back log or telemetry adapters safely.
+values. Applications still own label confidentiality/cardinality and observer
+latency/concurrency; allowed label syntax does not classify data as safe.

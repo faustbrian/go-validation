@@ -12,6 +12,9 @@ const (
 
 // All requires every validator to pass. The supplied positions, including nil
 // entries, must fit Context.Limits().MaxCollectionSize before any invocation.
+// The supplied slice/input is borrowed across future calls. Empty/all-nil
+// inputs pass; zero/unknown Mode collects all. An arbitrary nested panic is
+// contained by the outer function adapter and can replace prior findings.
 func All[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 	return ValidatorFunc[T](func(ctx Context, value T) Report {
 		if len(validators) > ctx.Limits().MaxCollectionSize {
@@ -36,6 +39,10 @@ func All[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 // Any requires at least one validator to pass. Failed alternatives are
 // returned only when every alternative fails. The supplied positions, including
 // nil entries, must fit Context.Limits().MaxCollectionSize before any invocation.
+// Empty/all-nil inputs also return nonblocking success. If any alternative
+// passes, only successful alternatives' findings (including warnings) remain;
+// a terminal alternative returns accumulated partial findings immediately.
+// Caller-owned validator slices must stay stable across future calls.
 func Any[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 	return ValidatorFunc[T](func(ctx Context, value T) Report {
 		if len(validators) > ctx.Limits().MaxCollectionSize {

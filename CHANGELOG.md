@@ -5,6 +5,13 @@ versioning.
 
 ## [Unreleased]
 
+### Documentation
+
+- Clarify callback/input ownership, per-call async joining, partial report
+  state, projection/helper variants and resource admission. Distinguish
+  compile-time type checks from existing runtime dereference-cycle limitations
+  and describe package-defined comparison/primitive profiles truthfully.
+
 ## [2.0.1] - 2026-10-06
 
 ### Documentation

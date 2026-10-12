@@ -1,6 +1,7 @@
 # Documentation
 
 - [API reference](api.md)
+- [Source documentation audit](source-documentation-audit.md)
 - [Rule catalog](rules.md)
 - [Normative semantics](semantics.md)
 - [Specification decisions](specification-decisions.md)

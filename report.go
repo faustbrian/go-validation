@@ -20,7 +20,9 @@ type Report struct {
 }
 
 // ContextReport returns an empty report that snapshots ctx.Err().
-// An active context produces no terminal state.
+// An active context produces no terminal state. Require a nonnil context;
+// nil panics on direct use. Only exact standard cancellation/deadline
+// identities are retained, never a request context or custom cancellation cause.
 //
 //nolint:revive // The frozen additive API preserves validation context before caller context.
 func ContextReport(validationContext Context, ctx context.Context) Report {
@@ -34,12 +36,20 @@ func ContextReport(validationContext Context, ctx context.Context) Report {
 	return report
 }
 
-// NewReport creates an empty report governed by limits.
+// NewReport creates an empty report governed by the supplied limits without
+// validating/defaulting them. Use Context.Limits or positive DefaultLimits; a
+// zero Report can merge into a configured report but is not an admission
+// constructor with default retention bounds.
 func NewReport(limits Limits) Report {
 	return Report{limits: limits, keys: make(map[string]struct{})}
 }
 
-// Add returns a report with a violation appended if it is not a duplicate.
+// Add returns a copy-on-write report with a unique violation retained within
+// limits. Diagnostic validation precedes display-path admission; refusal
+// replaces input with fixed invalid_violation or rooted path_limit findings.
+// Blocking state is recorded before dedup/retention, so dropped errors still
+// block Err. Identity includes typed path/code/severity/sorted parameters, not
+// cause identity; causes are borrowed interfaces and are never rendered here.
 func (r Report) Add(violation Violation) Report {
 	if !validDiagnostic(violation, r.limits) {
 		violation = invalidViolation()
@@ -64,7 +74,9 @@ func (r Report) Add(violation Violation) Report {
 	return r
 }
 
-// Merge returns a report with other's violations appended in their order.
+// Merge appends other's retained violations under receiver limits, preserving
+// hidden blocking/truncation flags. The receiver's first terminal wins. No
+// dropped finding is reconstructed, so Len/HasCode can omit a blocking reason.
 func (r Report) Merge(other Report) Report {
 	for _, violation := range other.violations {
 		r = r.Add(violation)
@@ -84,7 +96,8 @@ func (r Report) Merge(other Report) Report {
 // Len returns the number of retained violations.
 func (r Report) Len() int { return len(r.violations) }
 
-// Empty reports whether no violations were retained.
+// Empty reports whether no violations were retained, not complete success.
+// A terminal or truncated report can be empty while Err is nonnil.
 func (r Report) Empty() bool { return len(r.violations) == 0 }
 
 // ContextError reports the captured context terminal identity, if any.
@@ -124,7 +137,10 @@ func (r Report) Err() error {
 	return nil
 }
 
-// String returns a value-safe report summary.
+// String returns a cause/parameter-free summary. Active reports use failure-
+// oriented prose even when empty or warnings only; it is not a success test.
+// Use Err for acceptance and restrict explicit path/parameter/cause projection
+// according to application confidentiality policy.
 func (r Report) String() string {
 	if terminal := r.ContextError(); terminal != nil {
 		result := "validation canceled"
@@ -154,6 +170,9 @@ func (r Report) String() string {
 	return result
 }
 
+// Keep identity independent of human rendering and map iteration order.
+// Length prefixes plus typed segments avoid display collisions and ambiguous
+// concatenation; cause identity is deliberately excluded from deduplication.
 func violationKey(violation Violation) string {
 	keys := make([]string, 0, len(violation.parameters))
 	for key := range violation.parameters {

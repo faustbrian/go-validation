@@ -6,19 +6,27 @@ import validation "github.com/faustbrian/go-validation/v2"
 
 // TestingT is the subset of testing.TB used by these helpers.
 type TestingT interface {
+	// Helper marks the helper call site without changing the validation result.
 	Helper()
+	// Fatalf reports a failed assertion; conventional implementations stop the
+	// test, but helpers also return after captured terminal-state refusal.
 	Fatalf(format string, arguments ...any)
 }
 
 // Case is a reusable typed validation fixture.
 type Case[T any] struct {
-	Name  string
+	// Name is a test diagnostic label, not validation configuration.
+	Name string
+	// Value is a shallow borrowed fixture value.
 	Value T
+	// Valid requires Empty for positive conformance cases, including rejection of warnings; this differs from RequireValid.
 	Valid bool
+	// Codes lists required retained codes for negative cases; it is not exact finding equality.
 	Codes []string
 }
 
-// RequireValid fails the test when report contains any violation.
+// RequireValid requires complete nonblocking success; warning-only reports
+// pass. It refuses captured cancellation/deadline before checking Err.
 func RequireValid(t TestingT, report validation.Report) {
 	t.Helper()
 	if !requireComplete(t, report) {
@@ -40,7 +48,9 @@ func RequireCode(t TestingT, report validation.Report, code string) {
 	}
 }
 
-// RejectMutations proves that every supplied defect is rejected.
+// RejectMutations requires each supplied value to complete with blocking
+// findings. It is a consumer helper, not proof of an exhaustive mutation
+// campaign; inputs/validator are borrowed without fanout limits or containment.
 func RejectMutations[T any](t TestingT, ctx validation.Context,
 	validator validation.Validator[T], mutations []T,
 ) {

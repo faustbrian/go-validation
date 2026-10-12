@@ -14,7 +14,9 @@ const (
 	PresentState
 )
 
-// Value preserves presence separately from a typed value.
+// Value preserves presence separately from a typed value. Its zero value is
+// missing; Present(nil) remains present. Generic values are shallow borrowed
+// copies, so maps/slices/pointers are neither cloned nor made immutable.
 type Value[T any] struct {
 	value    T
 	presence Presence

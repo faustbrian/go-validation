@@ -7,12 +7,19 @@ import (
 )
 
 // Clock supplies explicit deterministic current time.
-type Clock interface{ Now() time.Time }
+type Clock interface {
+	// Now is called on each Future/Past validation. Caller owns deterministic
+	// values and concurrent safety; nil/panic calls become core panic findings.
+	Now() time.Time
+}
 
-// Interval is a closed-open application time interval.
+// Interval groups application time boundaries; the type enforces neither
+// endpoint inclusion nor duration. OrderedInterval only checks their order.
 type Interval struct {
+	// Start is the application start boundary; no timezone/precision normalization is performed.
 	Start time.Time
-	End   time.Time
+	// End is the application end boundary. OrderedInterval permits equality; other rules choose interval inclusion.
+	End time.Time
 }
 
 // TimeBetween requires a time within inclusive bounds.
