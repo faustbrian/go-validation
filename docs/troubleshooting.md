@@ -1,5 +1,7 @@
 # Troubleshooting
 
+[Documentation index](README.md)
+
 ## A required zero value passes or fails unexpectedly
 
 Check whether decoding used `Value[T]`. `Required` rejects present empty values;

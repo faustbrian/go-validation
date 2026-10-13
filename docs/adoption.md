@@ -1,5 +1,7 @@
 # Adoption from Laravel and cline/struct
 
+[Documentation index](README.md)
+
 ## Laravel validation
 
 Map request binding and validation into separate steps. Preserve presence while
@@ -34,3 +36,5 @@ callbacks with typed validators and explicit accessors.
 4. Add transport projection conformance tests before switching responses.
 5. Move database/network checks to `AsyncValidator`.
 6. Keep domain invariants in constructors after input validation.
+
+Continue with [API reference](api.md).

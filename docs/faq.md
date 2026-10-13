@@ -1,5 +1,7 @@
 # FAQ
 
+[Documentation index](README.md)
+
 ## Is this a request validator or DTO framework?
 
 No. Decode elsewhere, preserve presence when needed, then call typed
@@ -49,3 +51,5 @@ cannot bypass validation or inject unsafe output.
 
 Typed accessors already avoid reflection. Tag plans compile once. A generated
 path would require conformance and maintenance without current benchmark proof.
+
+Continue with [API reference](api.md).

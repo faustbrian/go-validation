@@ -1,5 +1,7 @@
 # API reference
 
+[Documentation index](README.md)
+
 The checked API snapshot is `api/baseline.txt`; `golib api check` detects any
 change. Go package documentation remains the exhaustive symbol-level source.
 

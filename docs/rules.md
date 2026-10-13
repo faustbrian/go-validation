@@ -1,5 +1,7 @@
 # Rule catalog
 
+[Documentation index](README.md)
+
 Every failure code below is stable machine identity. Parameters contain bounds
 only; rejected values are never retained.
 
@@ -31,3 +33,5 @@ values and requires the left field not to exceed the right.
 
 Domain-specific country, postal, carrier, authorization, database existence,
 and uniqueness policies deliberately remain outside this package.
+
+Continue with [API reference](api.md).

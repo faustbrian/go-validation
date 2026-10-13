@@ -1,5 +1,7 @@
 # Guides
 
+[Documentation index](README.md)
+
 ## Typed structs
 
 Typed plans do not use reflection:

@@ -1,5 +1,7 @@
 # Performance
 
+[Documentation index](README.md)
+
 Validation is synchronous and allocation-conscious. Reports are immutable,
 which intentionally allocates defensive copies when findings are added. Pass
 paths are cheaper than failure aggregation.
@@ -40,3 +42,5 @@ Use typed plans on hot paths. Tag plans compile reflection once and are safe for
 concurrent validation. Use a bounded `structplan.Cache` only when many types are
 compiled dynamically. Code generation is not shipped because current evidence
 does not justify a second conformance path.
+
+Continue with [API reference](api.md).

@@ -1,5 +1,7 @@
 # Fuzz corpus
 
+[Documentation index](README.md)
+
 The `fuzz` operation in `.golib.yaml` runs seven bounded native Go fuzz targets.
 Every target starts with deterministic semantic seeds; minimized defects that
 add new behavioral coverage are retained under `testdata/fuzz`.

@@ -1,5 +1,7 @@
 # Security model
 
+[Documentation index](README.md)
+
 ## Published v2 diagnostic change
 
 The published v2.0.0 release changes the default error text returned by
@@ -158,3 +160,5 @@ Translation lookup is panic-safe and cannot alter machine path, code,
 severity, ordering, or blocking state. Catalog text exceeding the string
 budget, containing invalid UTF-8 or controls, is omitted; accepted text is
 HTML-escaped before return.
+
+Continue with [API reference](api.md).

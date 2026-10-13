@@ -1,5 +1,7 @@
 # Normative semantics
 
+[Documentation index](README.md)
+
 ## Presence
 
 The following table is normative. “Pass” means the rule emits no violation.

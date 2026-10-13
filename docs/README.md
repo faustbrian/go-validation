@@ -1,5 +1,7 @@
 # Documentation
 
+[Package README](../README.md)
+
 - [API reference](api.md)
 - [Source documentation audit](source-documentation-audit.md)
 - [Rule catalog](rules.md)
@@ -17,3 +19,8 @@
 - [Compatibility policy](compatibility.md)
 
 Start with the five-minute quickstart in the [README](../README.md).
+
+## Ecosystem navigation
+
+See the [versioned Golib ecosystem index](https://github.com/faustbrian/go-library-tools/blob/v1.8.4/docs/ecosystem/README.md) for package
+selection, explicit ownership, and compatibility guidance.

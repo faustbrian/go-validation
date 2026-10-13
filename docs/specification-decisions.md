@@ -1,5 +1,7 @@
 # Specification decisions
 
+[Documentation index](README.md)
+
 This register bounds the package's standards claims and records every observable
 interpretation owned by the validation paths and transport projections.
 

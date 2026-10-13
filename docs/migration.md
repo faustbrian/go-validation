@@ -1,5 +1,7 @@
 # Migration and versioning
 
+[Documentation index](README.md)
+
 ## Adopting v2
 
 After v2.0.0 is publicly available, require
