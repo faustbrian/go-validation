@@ -173,3 +173,59 @@ func TestRuntimeDereferencePreservesAcyclicAndPresenceSemantics(t *testing.T) {
 		})
 	}
 }
+
+// The bounded subprocess probe above protects against historical hangs. Keep a
+// direct public compilation assertion too: child test counters are not merged
+// into the ordinary package coverage profile.
+func TestCompileTagsRejectsRecursiveUntaggedPointerField(t *testing.T) {
+	type untagged struct{ Dynamic recursiveRuntimePointer }
+	limits := validation.DefaultLimits()
+	limits.MaxCompiledPlans = 1
+	plan, err := structplan.CompileTags[untagged](limits)
+	if plan != nil || !errors.Is(err, structplan.ErrCycle) {
+		t.Fatalf("recursive field compilation = %v, %v; want nil, ErrCycle", plan, err)
+	}
+	cache := structplan.NewCache(limits)
+	cached, err := structplan.CompileCached[untagged](cache)
+	if cached != nil || !errors.Is(err, structplan.ErrCycle) || cache.Len() != 0 {
+		t.Fatalf("recursive cached field = %v, %v; cache entries=%d", cached, err, cache.Len())
+	}
+
+	// An ordinary named pointer field still recursively compiles its leaf rules,
+	// and the rejected definition must leave capacity for that finite plan.
+	type leaf struct {
+		Name string `validate:"required"`
+	}
+	type leafPointer *leaf
+	type finite struct{ Child leafPointer }
+	finitePlan, err := structplan.CompileCached[finite](cache)
+	if err != nil || finitePlan == nil || cache.Len() != 1 {
+		t.Fatalf("finite cached plan = %v, %v; cache entries=%d", finitePlan, err, cache.Len())
+	}
+	ctx, err := validation.NewContext(limits)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report := finitePlan.Validate(ctx, finite{Child: leafPointer(&leaf{Name: "ok"})}); !report.Empty() {
+		t.Fatalf("finite nested value = %v", report)
+	}
+	report := finitePlan.Validate(ctx, finite{Child: leafPointer(&leaf{})})
+	if report.Len() != 1 || !report.HasCode("required") || report.Violations()[0].Path().String() != "Child.Name" {
+		t.Fatalf("finite nested rule/path = %v", report)
+	}
+
+	// A tagged recursive pointer belongs to runtime dispatch, not untagged
+	// compile-time traversal. Nil presence and a cyclic instance stay distinct.
+	taggedPlan, err := structplan.CompileTags[runtimePointerGraph](limits)
+	if err != nil {
+		t.Fatalf("tagged pointer compilation = %v", err)
+	}
+	if report := taggedPlan.Validate(ctx, runtimePointerGraph{}); report.Len() != 1 || !report.HasCode("required") {
+		t.Fatalf("tagged nil pointer = %v", report)
+	}
+	var pointer recursiveRuntimePointer
+	pointer = recursiveRuntimePointer(&pointer)
+	if report := taggedPlan.Validate(ctx, runtimePointerGraph{Dynamic: pointer}); report.Len() != 1 || !report.HasCode("cycle") {
+		t.Fatalf("tagged runtime cycle = %v", report)
+	}
+}
