@@ -34,7 +34,7 @@ together. See [`COMPATIBILITY.md`](COMPATIBILITY.md).
 ## Security Gates
 
 Checks follow the changed trust boundary and applicable release risk in
-[`AGENTS.md`](AGENTS.md#proportional-assurance). Ordinary required CI remains
+[`AGENTS.md`](AGENTS.md#scope-and-verification). Ordinary required CI remains
 separate from the opt-in native security diagnostic, which qualifies owned
 analysis and current-tree/history secret policy for the exact checked-out
 source. A diagnostic cannot substitute for ordinary CI or a release rehearsal,
