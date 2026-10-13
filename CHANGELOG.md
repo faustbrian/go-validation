@@ -5,6 +5,8 @@ versioning.
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-10-13
+
 ### Breaking
 
 - Prepare v3.0.0 under `github.com/faustbrian/go-validation/v3`; migrate every
@@ -31,6 +33,27 @@ versioning.
   state, projection/helper variants and resource admission. Distinguish
   compile-time type checks from existing runtime dereference-cycle limitations
   and describe package-defined comparison/primitive profiles truthfully.
+
+### Maintenance
+
+- Adopt patched documentation and authenticated shared tooling, bounded
+  selected verification, source documentation contracts and coherent
+  contribution/adoption navigation. Runtime dependency versions and the
+  Go 1.27 minimum remain unchanged by this major-module transition.
+
+### Source accountability
+
+- [46d76915](https://github.com/faustbrian/go-validation/commit/46d7691580d2b242fd4ebe9002cc9e557683ea00) — ci: use patched documentation tooling.
+- [f9e4acb3](https://github.com/faustbrian/go-validation/commit/f9e4acb39521ac917fb7f47bca07e006cc7d5c3d) — ci: adopt bounded published verification.
+- [618e441c](https://github.com/faustbrian/go-validation/commit/618e441cab0148b44d9fa5d19f4de0e868dfe5c4) — ci: add bounded selected assurance.
+- [19d47174](https://github.com/faustbrian/go-validation/commit/19d471746d29dcae72fd0f65e797b90c4d94f240) — docs: standardize repository development policy.
+- [2c10a5bd](https://github.com/faustbrian/go-validation/commit/2c10a5bd3ce379098e1d2778bb75f6bce4e3a137) — chore(ci): pin shared tooling to v2.3.0.
+- [cb316be7](https://github.com/faustbrian/go-validation/commit/cb316be749e6ed45fd534491b599173961640fbf) — chore(ci): align manual tooling source pins.
+- [c4a9fda1](https://github.com/faustbrian/go-validation/commit/c4a9fda162bb302d02291496b35e29c869c2d03c) — docs: clarify validation ownership and limits.
+- [1366c3fe](https://github.com/faustbrian/go-validation/commit/1366c3fea0026e5dac0bd7964c6e2fc935bcb0d8) — chore: enforce source documentation contracts.
+- [717be798](https://github.com/faustbrian/go-validation/commit/717be798b83ce345acb419c4ae805d7cc3a4171f) — docs: align adoption and documentation navigation.
+- [bdaf4e0a](https://github.com/faustbrian/go-validation/commit/bdaf4e0aa94c6b3188bf1cdedaa3612f69fdac4f) — docs: repair assurance policy navigation.
+- [7bf88065](https://github.com/faustbrian/go-validation/commit/7bf880659e78e790b5adef901c35fc33e3186024) — fix: correct validation boundaries in v3.
 
 ## [2.0.1] - 2026-10-06
 

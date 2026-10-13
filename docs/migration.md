@@ -39,7 +39,7 @@ preserved in `api/v1.2.0.txt`; `api/baseline.txt` now tracks the current v3 API.
 
 ## Adopting v3
 
-Current main prepares v3.0.0. After publication, require
+To adopt v3.0.0, first require its public tag to resolve, then select
 `github.com/faustbrian/go-validation/v3@v3.0.0` and replace `/v2` with `/v3`
 in every root and subpackage import. Go 1.27.0 remains the minimum toolchain.
 All sixteen packages remain at the repository root; there is no `v3` source

@@ -15,8 +15,8 @@ retain stable paths and rule codes without retaining rejected values.
 
 ## Five-minute quickstart
 
-Current main prepares the v3 major-version module. After v3.0.0 is published,
-install it with:
+The v3 major-version module uses the `/v3` import identity. Require the
+public v3.0.0 tag to resolve before installing this release:
 
 ```sh
 go get github.com/faustbrian/go-validation/v3@v3.0.0
