@@ -5,6 +5,26 @@ versioning.
 
 ## [Unreleased]
 
+### Breaking
+
+- Prepare v3.0.0 under `github.com/faustbrian/go-validation/v3`; migrate every
+  root and subpackage import together. All sixteen packages remain at the
+  repository root. Published v2 stays available; major-module named types and
+  error identities are distinct. See the [v3 migration guide](docs/migration.md#adopting-v3).
+- Empty/all-nil `Any` now emits `any` because no alternative succeeded.
+  Use `All` for an intentionally empty set of independent constraints.
+- `Keys`/`Values` reject NaN floating keys with a map-level `key` finding
+  before child invocation; values are taken from actual entries. NaN equality
+  in `Unique` and `FieldsEqual` remains ordinary Go equality.
+
+### Fixed
+
+- Tag plans reject cyclic pointer/interface normalization with field-local
+  `cycle` findings, preserving finite acyclic chains and pointer presence.
+  `MaxDepth` remains compile-time structural depth, not a runtime hop cap.
+- Recursive untagged pointer types fail construction with `ErrCycle`; failed
+  compilation does not consume a plan-cache entry or prevent later compilation.
+
 ### Documentation
 
 - Clarify callback/input ownership, per-call async joining, partial report

@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 var (

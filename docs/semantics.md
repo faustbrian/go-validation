@@ -29,6 +29,12 @@ No rule coerces, defaults, trims, normalizes, or replaces a value.
 `ShortCircuit` stops at the first decisive result. `CollectAll` evaluates every
 relevant child. Warning-only reports are non-blocking.
 
+An empty or all-nil `Any` has no successful alternative and emits the blocking
+`any` finding. Nil alternatives are skipped, not successful alternatives.
+Use `All` for an intentionally empty set of independent constraints; its empty
+composition still passes. All supplied positions continue to count toward
+`MaxCollectionSize`, including nil positions.
+
 A carried cancellation or deadline terminal stops every compositor regardless
 of mode. `Any` returns the complete ordered partial accumulator, `Not` does not
 negate an incomplete result, and collection and typed-plan traversal stop after

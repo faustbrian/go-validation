@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 func fanoutContext(t *testing.T) validation.Context {

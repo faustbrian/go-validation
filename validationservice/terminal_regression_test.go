@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	"github.com/faustbrian/go-validation/v2/validationservice"
+	validation "github.com/faustbrian/go-validation/v3"
+	"github.com/faustbrian/go-validation/v3/validationservice"
 )
 
 func TestChainReturnsTerminalWithoutStartingHooks(t *testing.T) {

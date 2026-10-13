@@ -3,7 +3,7 @@ package structplan
 import (
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 type fuzzAlias string
@@ -39,9 +39,11 @@ func FuzzTagGrammarNeverPanics(f *testing.F) {
 }
 
 // FuzzCompiledPlansAcrossSupportedShapes exercises aliases, nil/non-nil
-// pointers, interfaces and collection admission on fixed acyclic type/value
-// shapes. It does not generate cyclic runtime dereference graphs.
+// pointers, interfaces and collection admission on fixed type shapes,
+// including finite constructed pointer/interface cycles. Cyclic
+// dereference chains must produce field-local cycle findings.
 func FuzzCompiledPlansAcrossSupportedShapes(f *testing.F) {
+	f.Add("name", "a@example.com", 1, false)
 	f.Add("name", "a@example.com", 2, false)
 	f.Add("", "bad", 20, true)
 	f.Fuzz(func(t *testing.T, text, email string, count int, nilPointer bool) {
@@ -71,10 +73,25 @@ func FuzzCompiledPlansAcrossSupportedShapes(f *testing.F) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		_ = plan.Validate(ctx, fuzzShape{
+		dynamic := any(text)
+		cyclic := count%3 == 1
+		if cyclic {
+			var cycle any
+			cycle = &cycle
+			dynamic = cycle
+		} else if count%3 == 2 {
+			for range count {
+				next := dynamic
+				dynamic = &next
+			}
+		}
+		report := plan.Validate(ctx, fuzzShape{
 			FuzzEmbedded: FuzzEmbedded{Alias: fuzzAlias(text)},
-			Pointer:      pointer, Dynamic: text, Mapping: mapping, Slice: values,
+			Pointer:      pointer, Dynamic: dynamic, Mapping: mapping, Slice: values,
 		})
+		if cyclic != report.HasCode("cycle") {
+			t.Fatalf("cyclic graph admission = %v", report)
+		}
 		generic, err := CompileTags[fuzzGeneric[string]](limits)
 		if err != nil {
 			t.Fatal(err)

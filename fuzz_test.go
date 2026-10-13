@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 // FuzzPathAndReportSafety checks typed display-collision identity, rooted path

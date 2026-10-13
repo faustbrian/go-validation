@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"sync"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 // Cache is an instance-owned bounded cache of immutable compiled tag plans.

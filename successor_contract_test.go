@@ -14,17 +14,17 @@ import (
 	"testing"
 	"time"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	validationconfig "github.com/faustbrian/go-validation/v2/adapters/config"
-	validationhttp "github.com/faustbrian/go-validation/v2/adapters/http"
-	validationjsonapi "github.com/faustbrian/go-validation/v2/adapters/jsonapi"
-	validationjsonrpc "github.com/faustbrian/go-validation/v2/adapters/jsonrpc"
-	validationservice "github.com/faustbrian/go-validation/v2/adapters/service"
-	legacyconfig "github.com/faustbrian/go-validation/v2/validationconfig"
-	legacyhttp "github.com/faustbrian/go-validation/v2/validationhttp"
-	legacyjsonapi "github.com/faustbrian/go-validation/v2/validationjsonapi"
-	legacyjsonrpc "github.com/faustbrian/go-validation/v2/validationrpc"
-	legacyservice "github.com/faustbrian/go-validation/v2/validationservice"
+	validation "github.com/faustbrian/go-validation/v3"
+	validationconfig "github.com/faustbrian/go-validation/v3/adapters/config"
+	validationhttp "github.com/faustbrian/go-validation/v3/adapters/http"
+	validationjsonapi "github.com/faustbrian/go-validation/v3/adapters/jsonapi"
+	validationjsonrpc "github.com/faustbrian/go-validation/v3/adapters/jsonrpc"
+	validationservice "github.com/faustbrian/go-validation/v3/adapters/service"
+	legacyconfig "github.com/faustbrian/go-validation/v3/validationconfig"
+	legacyhttp "github.com/faustbrian/go-validation/v3/validationhttp"
+	legacyjsonapi "github.com/faustbrian/go-validation/v3/validationjsonapi"
+	legacyjsonrpc "github.com/faustbrian/go-validation/v3/validationrpc"
+	legacyservice "github.com/faustbrian/go-validation/v3/validationservice"
 )
 
 type chainSamplingContext struct {
@@ -61,20 +61,20 @@ func TestSuccessorPackagesOwnExportedTypeIdentity(t *testing.T) {
 		"service Hook":      reflect.TypeOf(validationservice.Hook[int](nil)),
 	}
 	wants := map[string]string{
-		"config Validator":  "github.com/faustbrian/go-validation/v2/adapters/config",
-		"config Check":      "github.com/faustbrian/go-validation/v2/adapters/config",
-		"http Problem":      "github.com/faustbrian/go-validation/v2/adapters/http",
-		"http Error":        "github.com/faustbrian/go-validation/v2/adapters/http",
-		"jsonapi Document":  "github.com/faustbrian/go-validation/v2/adapters/jsonapi",
-		"jsonapi Meta":      "github.com/faustbrian/go-validation/v2/adapters/jsonapi",
-		"jsonapi Error":     "github.com/faustbrian/go-validation/v2/adapters/jsonapi",
-		"jsonapi ErrorMeta": "github.com/faustbrian/go-validation/v2/adapters/jsonapi",
-		"jsonapi Source":    "github.com/faustbrian/go-validation/v2/adapters/jsonapi",
-		"jsonrpc Error":     "github.com/faustbrian/go-validation/v2/adapters/jsonrpc",
-		"jsonrpc Data":      "github.com/faustbrian/go-validation/v2/adapters/jsonrpc",
-		"jsonrpc Violation": "github.com/faustbrian/go-validation/v2/adapters/jsonrpc",
-		"service Validator": "github.com/faustbrian/go-validation/v2/adapters/service",
-		"service Hook":      "github.com/faustbrian/go-validation/v2/adapters/service",
+		"config Validator":  "github.com/faustbrian/go-validation/v3/adapters/config",
+		"config Check":      "github.com/faustbrian/go-validation/v3/adapters/config",
+		"http Problem":      "github.com/faustbrian/go-validation/v3/adapters/http",
+		"http Error":        "github.com/faustbrian/go-validation/v3/adapters/http",
+		"jsonapi Document":  "github.com/faustbrian/go-validation/v3/adapters/jsonapi",
+		"jsonapi Meta":      "github.com/faustbrian/go-validation/v3/adapters/jsonapi",
+		"jsonapi Error":     "github.com/faustbrian/go-validation/v3/adapters/jsonapi",
+		"jsonapi ErrorMeta": "github.com/faustbrian/go-validation/v3/adapters/jsonapi",
+		"jsonapi Source":    "github.com/faustbrian/go-validation/v3/adapters/jsonapi",
+		"jsonrpc Error":     "github.com/faustbrian/go-validation/v3/adapters/jsonrpc",
+		"jsonrpc Data":      "github.com/faustbrian/go-validation/v3/adapters/jsonrpc",
+		"jsonrpc Violation": "github.com/faustbrian/go-validation/v3/adapters/jsonrpc",
+		"service Validator": "github.com/faustbrian/go-validation/v3/adapters/service",
+		"service Hook":      "github.com/faustbrian/go-validation/v3/adapters/service",
 	}
 	for name, typ := range types {
 		if typ.PkgPath() != wants[name] {

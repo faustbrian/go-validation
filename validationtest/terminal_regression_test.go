@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	"github.com/faustbrian/go-validation/v2/validationtest"
+	validation "github.com/faustbrian/go-validation/v3"
+	"github.com/faustbrian/go-validation/v3/validationtest"
 )
 
 type terminalRecordingT struct{ messages []string }

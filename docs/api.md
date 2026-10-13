@@ -5,7 +5,7 @@
 The checked API snapshot is `api/baseline.txt`; `golib api check` detects any
 change. Go package documentation remains the exhaustive symbol-level source.
 
-The current snapshot uses `github.com/faustbrian/go-validation/v2` identities.
+The current snapshot uses `github.com/faustbrian/go-validation/v3` identities.
 `api/v1.2.0.txt` preserves the unmodified released v1.2.0 snapshot from commit
 `b47a4a3e5e5ca41b4f25dac570a74ac4516c73fd`, separately from the current-major
 compatibility check.
@@ -66,9 +66,9 @@ plan or cache construction.
   mutation helpers.
 
 The original `validationconfig`, `validationhttp`, `validationjsonapi`,
-`validationrpc`, and `validationservice` paths remain in the v2 module with
-their retained declarations and projection shapes. Their v2 named types are
-distinct from published v1 types. The retained service chain receives the same
+`validationrpc`, and `validationservice` paths remain in the v3 module with
+their retained declarations and projection shapes. Their v3 named types are
+distinct from published v1 and v2 types. The retained service chain receives the same
 security and cancellation corrections as its successor. These paths are
 deprecated in favor of the target
 paths above and remain supported for the longer of 180 days after successor

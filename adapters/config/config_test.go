@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	validationconfig "github.com/faustbrian/go-validation/v2/adapters/config"
-	"github.com/faustbrian/go-validation/v2/rules"
+	validation "github.com/faustbrian/go-validation/v3"
+	validationconfig "github.com/faustbrian/go-validation/v3/adapters/config"
+	"github.com/faustbrian/go-validation/v3/rules"
 )
 
 func TestCheckImplementsConfigContractAndPreservesTerminalErrors(t *testing.T) {

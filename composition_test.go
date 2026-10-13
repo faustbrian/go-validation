@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 func TestAllHonorsExecutionMode(t *testing.T) {

@@ -35,7 +35,36 @@ Review these intentional behavioral changes at each application boundary:
 
 Re-run application response fixtures and success/cancellation checks rather
 than comparing private diagnostic text. The released v1.2.0 API snapshot is
-preserved in `api/v1.2.0.txt`; `api/baseline.txt` tracks the current v2 API.
+preserved in `api/v1.2.0.txt`; `api/baseline.txt` now tracks the current v3 API.
+
+## Adopting v3
+
+Current main prepares v3.0.0. After publication, require
+`github.com/faustbrian/go-validation/v3@v3.0.0` and replace `/v2` with `/v3`
+in every root and subpackage import. Go 1.27.0 remains the minimum toolchain.
+All sixteen packages remain at the repository root; there is no `v3` source
+directory or version-specific source branch.
+
+These pass/fail corrections are breaking under the policy below. They do not
+change existing published v2 tags; v2 remains independently available and
+existing consumers are not automatically upgraded. When adopting v3:
+
+- Supply a non-nil alternative to `Any`; an empty or all-nil OR now fails with
+  `any`. Use `All` when an intentionally empty constraint set should pass.
+- Normalize or reject NaN map keys before using `Keys` or `Values`; they now
+  fail map-level `key` admission without invoking children. NaN values and
+  ordinary Go equality in `Unique`/`FieldsEqual` are unchanged.
+- Handle field-local `cycle` findings from tag plans. Cyclic pointer/interface
+  normalization no longer hangs; finite acyclic chains remain accepted, and
+  `MaxDepth` keeps its compile-time meaning. Untagged recursive pointer types
+  fail construction with `ErrCycle`, without occupying a cache entry.
+
+Named types and error sentinels have distinct major-module identities. Migrate
+validators, reports, adapters and their public contracts together; do not mix
+v2 and v3 values by assignment or expect cross-major `errors.Is` identity.
+Re-run application success/failure and response fixtures at each migrated
+boundary. Ordinary Go equality and finite acyclic pointer presence remain
+unchanged.
 
 ## Earlier v1 migrations
 

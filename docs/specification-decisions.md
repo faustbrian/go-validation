@@ -201,3 +201,24 @@ Additional authoritative source: `{"id":"jsonrpc-source","version":"JSON-RPC 2.0
 
 [RFC2119]: https://www.rfc-editor.org/rfc/rfc2119
 [RFC8174]: https://www.rfc-editor.org/rfc/rfc8174
+
+## Local validation boundary corrections
+
+The six external projection decisions and authority pins are unchanged.
+Local rule semantics do not derive a numerical domain from those protocols:
+`Unique` and `FieldsEqual` preserve Go comparable equality, including NaNs
+inside comparable composites. Ordered map validation instead rejects
+non-reflexive floating keys before child work to retain deterministic keyed
+locations and actual-value validation.
+
+The pre-audit normative composition contract requires a successful `Any` child;
+empty/all-nil alternatives therefore fail with `any`, rather than inheriting
+success from an empty failure accumulator. Runtime tag normalization rejects
+cyclic dereference chains with `cycle`, independently of compile-time depth.
+Finite acyclic graphs keep their earlier admission and presence semantics.
+
+Native evidence: `TestAnyRequiresAnEvaluatedSuccessfulAlternative`,
+`TestOrderedMapRulesRejectNonreflexiveKeysBeforeCallbacks`,
+`TestUniqueCompositeNaNUsesGoEquality`,
+`TestRuntimeDereferenceGraphsAreBounded`, and
+`TestRuntimeDereferencePreservesAcyclicAndPresenceSemantics`.

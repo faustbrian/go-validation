@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strconv"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 // SliceSize requires an inclusive slice-size range.
@@ -82,6 +82,7 @@ func Items[T any](mode validation.Mode, validator validation.Validator[T]) valid
 }
 
 // Keys validates ordered map keys in sorted order for deterministic reports.
+// Non-reflexive floating keys (NaNs) fail key admission before child invocation.
 func Keys[K cmp.Ordered, V any](mode validation.Mode,
 	validator validation.Validator[K],
 ) validation.Validator[map[K]V] {
@@ -100,6 +101,9 @@ func keysValidator[K cmp.Ordered, V any](
 		keys := make([]K, 0, len(values))
 		oversizedKey := false
 		for key := range values {
+			if key != key {
+				return fail(ctx, "key", nil)
+			}
 			if checkStringLimit && valueExceedsStringLimit(ctx, key) {
 				oversizedKey = true
 			}
@@ -123,9 +127,10 @@ func keysValidator[K cmp.Ordered, V any](
 }
 
 // Values validates map values in sorted key order and locates each finding at
-// its typed key segment. Ordinary Go map equality/lookup applies: NaN floating
-// keys cannot be retrieved and yield the zero V; they do not provide a
-// dependable keyed-validation location. Inputs must remain unchanged.
+// its typed key segment. Non-reflexive floating keys (NaNs) fail key admission
+// before child invocation because they cannot identify a deterministic keyed
+// location. Values come from actual map entries, not a second key lookup.
+// Inputs must remain unchanged.
 func Values[K cmp.Ordered, V any](mode validation.Mode,
 	validator validation.Validator[V],
 ) validation.Validator[map[K]V] {
@@ -141,22 +146,29 @@ func valuesValidator[K cmp.Ordered, V any](
 		if len(values) > ctx.Limits().MaxCollectionSize {
 			return fail(ctx, "collection_limit", nil)
 		}
-		keys := make([]K, 0, len(values))
+		type entry struct {
+			key   K
+			value V
+		}
+		entries := make([]entry, 0, len(values))
 		oversizedKey := false
-		for key := range values {
+		for key, value := range values {
+			if key != key {
+				return fail(ctx, "key", nil)
+			}
 			if checkStringLimit && valueExceedsStringLimit(ctx, key) {
 				oversizedKey = true
 			}
-			keys = append(keys, key)
+			entries = append(entries, entry{key: key, value: value})
 		}
 		if oversizedKey {
 			return fail(ctx, "string_limit", nil)
 		}
-		slices.Sort(keys)
+		slices.SortFunc(entries, func(left, right entry) int { return cmp.Compare(left.key, right.key) })
 		report := pass(ctx)
-		for _, key := range keys {
+		for _, entry := range entries {
 			current := validator.Validate(
-				ctx.WithPath(validation.Key(fmt.Sprint(key))), values[key],
+				ctx.WithPath(validation.Key(fmt.Sprint(entry.key))), entry.value,
 			)
 			report = report.Merge(current)
 			if current.ContextError() != nil ||

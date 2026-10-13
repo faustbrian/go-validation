@@ -9,7 +9,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 type tagRule struct {
@@ -33,8 +33,8 @@ type TagPlan[T any] struct {
 // It checks grammar, inaccessible tagged fields, visited field count and
 // compile-time struct-type cycles/depth. Untagged exported structs/pointers
 // recurse; tagged fields retain runtime rule dispatch, including interfaces.
-// It does not prove runtime dereference termination or reject every rule/kind
-// incompatibility at construction. Causes retain private type/tag diagnostics
+// Runtime dereference cycles are rejected by Validate; not every rule/kind
+// incompatibility is rejected at construction. Causes retain private type/tag diagnostics
 // behind fixed outer categories; restrict explicit cause introspection.
 func CompileTags[T any](limits validation.Limits) (*TagPlan[T], error) {
 	if _, err := validation.NewContext(limits); err != nil {
@@ -87,8 +87,17 @@ func compileType(current reflect.Type, indexes []int, path []string, depth int,
 		fieldIndexes := appendCopy(indexes, position)
 		fieldPath := appendCopy(path, field.Name)
 		base := field.Type
-		for base.Kind() == reflect.Pointer {
-			base = base.Elem()
+		// Tagged fields use runtime rule dispatch. Only nested untagged
+		// fields need type normalization, which can itself be recursive.
+		if tag == "" {
+			seen := make(map[reflect.Type]bool)
+			for base.Kind() == reflect.Pointer {
+				if seen[base] {
+					return fmt.Errorf("%w: pointer type", ErrCycle)
+				}
+				seen[base] = true
+				base = base.Elem()
+			}
 		}
 		if tag == "" && base.Kind() == reflect.Struct {
 			if err := compileType(base, fieldIndexes, fieldPath, depth+1,
@@ -152,9 +161,10 @@ func parseTag(tag string) ([]tagRule, error) {
 // mutation, using caller Context string/collection/path/report bounds. Required
 // fails missing/nil values; non-required rules skip them. Unsupported concrete
 // rule/kind combinations fail during validation rather than startup.
-// Runtime pointer/interface chains must be acyclic: indirect/required traversal
-// has no cycle counter or cancellation and can loop on cyclic object graphs.
-// This is an existing runtime limitation, not type-cycle conformance.
+// Runtime pointer/interface dereference cycles fail with a field-local cycle
+// finding before rule work. Finite acyclic chains retain their original semantics;
+// MaxDepth remains a compile-time structural bound, not a runtime hop budget.
+// Inputs are borrowed and must remain unchanged throughout validation.
 func (plan *TagPlan[T]) Validate(ctx validation.Context, value T) validation.Report {
 	report := validation.NewReport(ctx.Limits())
 	root := reflect.ValueOf(value)
@@ -168,7 +178,11 @@ func (plan *TagPlan[T]) Validate(ctx validation.Context, value T) validation.Rep
 			continue
 		}
 		fieldValue := fieldByIndex(root, field.index)
-		measuredValue := indirect(fieldValue)
+		measuredValue, acyclic := indirectChecked(fieldValue)
+		if !acyclic {
+			report = report.Merge(tagFailure(pathContext, "cycle"))
+			continue
+		}
 		if measuredValue.IsValid() && isCollection(measuredValue.Kind()) &&
 			measuredValue.Len() > ctx.Limits().MaxCollectionSize {
 			report = report.Merge(tagFailure(pathContext, "collection_limit"))
@@ -244,14 +258,37 @@ func evaluateTagRule(rule tagRule, value reflect.Value) string {
 }
 
 func indirect(value reflect.Value) reflect.Value {
-	for value.IsValid() && (value.Kind() == reflect.Pointer ||
-		value.Kind() == reflect.Interface) {
-		if value.IsNil() {
-			return reflect.Value{}
-		}
-		value = value.Elem()
-	}
+	value, _ = indirectChecked(value)
 	return value
+}
+
+// Floyd's algorithm follows the same normalization edges with two cursors.
+// Equality here identifies a repeated reflection state, not Go value equality.
+// No hop cap or visited-object allocation narrows finite acyclic inputs.
+func indirectChecked(value reflect.Value) (reflect.Value, bool) {
+	fast := value
+	for dereferenceable(value) {
+		value = indirectStep(value)
+		fast = indirectStep(indirectStep(fast))
+		if dereferenceable(value) && value == fast {
+			return reflect.Value{}, false
+		}
+	}
+	return value, true
+}
+
+func dereferenceable(value reflect.Value) bool {
+	return value.IsValid() && (value.Kind() == reflect.Pointer || value.Kind() == reflect.Interface)
+}
+
+func indirectStep(value reflect.Value) reflect.Value {
+	if !dereferenceable(value) {
+		return value
+	}
+	if value.IsNil() {
+		return reflect.Value{}
+	}
+	return value.Elem()
 }
 
 func reflectiveEmpty(value reflect.Value) bool {

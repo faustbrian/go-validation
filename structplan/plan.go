@@ -3,15 +3,15 @@
 // points; these plans validate without binding, coercion or provider IO.
 // Builders are mutable and not concurrent; compiled definitions are immutable
 // but borrow callbacks/input. Cache serializes compilation and owns no shutdown.
-// Compile-time type cycle/depth checks do not bound runtime interface/pointer
-// dereference cycles; reflected inputs must satisfy that separate boundary.
+// Tag plans reject cyclic runtime pointer/interface dereferences independently
+// of compile-time type/depth checks; finite acyclic chains have no hop cap.
 package structplan
 
 import (
 	"errors"
 	"fmt"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 var (
@@ -23,7 +23,7 @@ var (
 	ErrDuplicateRule = errors.New("duplicate validation rule")
 	// ErrInvalidTag marks malformed tag grammar or parameters.
 	ErrInvalidTag = errors.New("invalid validation tag")
-	// ErrCycle marks a recursive reflective struct graph.
+	// ErrCycle marks a recursive reflected struct or pointer type traversal.
 	ErrCycle = errors.New("cyclic validation type")
 	// ErrUnsupportedKind marks a type a tag rule cannot evaluate.
 	ErrUnsupportedKind = errors.New("unsupported validation kind")

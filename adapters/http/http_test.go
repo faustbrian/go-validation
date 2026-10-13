@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	validationhttp "github.com/faustbrian/go-validation/v2/adapters/http"
+	validation "github.com/faustbrian/go-validation/v3"
+	validationhttp "github.com/faustbrian/go-validation/v3/adapters/http"
 )
 
 func TestProblemWriterAndHookPreserveLegacyBehavior(t *testing.T) {

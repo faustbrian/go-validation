@@ -2,7 +2,7 @@
 // errors. The data member is a package-owned JSON-RPC 2.0 extension.
 package validationjsonrpc
 
-import validation "github.com/faustbrian/go-validation/v2"
+import validation "github.com/faustbrian/go-validation/v3"
 
 // Error is a JSON-RPC error object.
 type Error struct {

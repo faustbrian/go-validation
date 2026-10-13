@@ -1,3 +1,3 @@
-module github.com/faustbrian/go-validation/v2
+module github.com/faustbrian/go-validation/v3
 
 go 1.27.0

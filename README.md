@@ -4,7 +4,7 @@
 [![CodeQL](https://img.shields.io/badge/CodeQL-required-blue)](https://github.com/faustbrian/go-validation/actions/workflows/ci.yml)
 [![Mutation](https://img.shields.io/badge/mutation-local_and_scheduled-blue)](CONTRIBUTING.md#verification)
 [![Documentation](https://img.shields.io/badge/docs-structural_checks_in_CI-blue)](docs/)
-[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-validation/v2.svg)](https://pkg.go.dev/github.com/faustbrian/go-validation/v2)
+[![Go Reference](https://pkg.go.dev/badge/github.com/faustbrian/go-validation/v3.svg)](https://pkg.go.dev/github.com/faustbrian/go-validation/v3)
 [![Release](https://img.shields.io/github/v/release/faustbrian/go-validation?sort=semver)](https://github.com/faustbrian/go-validation/releases)
 [![Go](https://img.shields.io/badge/go-1.27.0-00ADD8?logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -15,13 +15,14 @@ retain stable paths and rule codes without retaining rejected values.
 
 ## Five-minute quickstart
 
-Install the published v2 major-version module:
+Current main prepares the v3 major-version module. After v3.0.0 is published,
+install it with:
 
 ```sh
-go get github.com/faustbrian/go-validation/v2@v2.0.0
+go get github.com/faustbrian/go-validation/v3@v3.0.0
 ```
 
-See the [v2 migration guide](docs/migration.md#adopting-v2) before upgrading
+See the [v3 migration guide](docs/migration.md#adopting-v3) before upgrading
 existing validation boundaries.
 
 ```go
@@ -30,8 +31,8 @@ package main
 import (
 	"fmt"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	"github.com/faustbrian/go-validation/v2/rules"
+	validation "github.com/faustbrian/go-validation/v3"
+	"github.com/faustbrian/go-validation/v3/rules"
 )
 
 func main() {

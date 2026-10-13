@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	"github.com/faustbrian/go-validation/v2/validationjsonapi"
+	validation "github.com/faustbrian/go-validation/v3"
+	"github.com/faustbrian/go-validation/v3/validationjsonapi"
 )
 
 // FuzzProjectionPaths requires JSON marshaling of admitted projected paths/

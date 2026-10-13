@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	validationhttp "github.com/faustbrian/go-validation/v2/validationhttp"
+	validation "github.com/faustbrian/go-validation/v3"
+	validationhttp "github.com/faustbrian/go-validation/v3/validationhttp"
 )
 
 type boundaryWriter struct {

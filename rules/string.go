@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 // ByteLength requires a byte length within the inclusive bounds.

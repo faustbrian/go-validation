@@ -39,8 +39,8 @@ func All[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 // Any requires at least one validator to pass. Failed alternatives are
 // returned only when every alternative fails. The supplied positions, including
 // nil entries, must fit Context.Limits().MaxCollectionSize before any invocation.
-// Empty/all-nil inputs also return nonblocking success. If any alternative
-// passes, only successful alternatives' findings (including warnings) remain;
+// Empty/all-nil inputs fail with any: none supplied a successful alternative.
+// If any alternative passes, only successful alternatives' findings remain;
 // a terminal alternative returns accumulated partial findings immediately.
 // Caller-owned validator slices must stay stable across future calls.
 func Any[T any](mode Mode, validators ...Validator[T]) Validator[T] {
@@ -52,10 +52,12 @@ func Any[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 		successes := NewReport(ctx.Limits())
 		partial := NewReport(ctx.Limits())
 		passed := false
+		evaluated := false
 		for _, validator := range validators {
 			if validator == nil {
 				continue
 			}
+			evaluated = true
 			current := validator.Validate(ctx, value)
 			partial = partial.Merge(current)
 			if current.ContextError() != nil {
@@ -73,6 +75,9 @@ func Any[T any](mode Mode, validators ...Validator[T]) Validator[T] {
 		}
 		if passed {
 			return successes
+		}
+		if !evaluated {
+			return failures.Add(NewViolation(ctx.Path(), "any", Error, nil, nil))
 		}
 		return failures
 	})

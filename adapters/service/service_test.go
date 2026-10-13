@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	validationservice "github.com/faustbrian/go-validation/v2/adapters/service"
+	validation "github.com/faustbrian/go-validation/v3"
+	validationservice "github.com/faustbrian/go-validation/v3/adapters/service"
 )
 
 func TestChainPreservesModesNilHooksAndTerminalOutcomes(t *testing.T) {

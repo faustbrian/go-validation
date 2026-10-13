@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	validationservice "github.com/faustbrian/go-validation/v2/validationservice"
+	validation "github.com/faustbrian/go-validation/v3"
+	validationservice "github.com/faustbrian/go-validation/v3/validationservice"
 )
 
 func TestServiceHookContainsPrivateApplicationPanic(t *testing.T) {

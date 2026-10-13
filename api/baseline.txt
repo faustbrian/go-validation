@@ -1,4 +1,4 @@
-package validation // import "github.com/faustbrian/go-validation/v2"
+package validation // import "github.com/faustbrian/go-validation/v3"
 
 Package validation provides typed, deterministic, bounded application validation
 without transport, binding, or persistence dependencies. Build a Context and use
@@ -353,12 +353,12 @@ func All[T any](mode Mode, validators ...Validator[T]) Validator[T]
 func Any[T any](mode Mode, validators ...Validator[T]) Validator[T]
     Any requires at least one validator to pass. Failed alternatives are
     returned only when every alternative fails. The supplied positions,
-    including nil entries, must fit Context.Limits().MaxCollectionSize before
-    any invocation. Empty/all-nil inputs also return nonblocking success.
-    If any alternative passes, only successful alternatives' findings (including
-    warnings) remain; a terminal alternative returns accumulated partial
-    findings immediately. Caller-owned validator slices must stay stable across
-    future calls.
+    including nil entries, must fit Context.Limits().MaxCollectionSize
+    before any invocation. Empty/all-nil inputs fail with any: none supplied
+    a successful alternative. If any alternative passes, only successful
+    alternatives' findings remain; a terminal alternative returns accumulated
+    partial findings immediately. Caller-owned validator slices must stay stable
+    across future calls.
 
 func Dependent[T any](prerequisite, dependent Validator[T]) Validator[T]
     Dependent runs dependent only when prerequisite has no blocking errors.
@@ -447,7 +447,7 @@ func (v Violation) Severity() Severity
 func (v Violation) String() string
     String deliberately excludes parameters, causes, and rejected values.
 
-package validationconfig // import "github.com/faustbrian/go-validation/v2/adapters/config"
+package validationconfig // import "github.com/faustbrian/go-validation/v3/adapters/config"
 
 Package validationconfig adapts typed validators to a small configuration
 validation contract.
@@ -479,7 +479,7 @@ type Validator interface {
 }
     Validator is the minimal validation contract used by configuration loaders.
 
-package validationhttp // import "github.com/faustbrian/go-validation/v2/adapters/http"
+package validationhttp // import "github.com/faustbrian/go-validation/v3/adapters/http"
 
 Package validationhttp provides router-neutral HTTP report projection.
 
@@ -536,7 +536,7 @@ func FromReport(report validation.Report) Problem
     FromReport projects validation findings into an unprocessable-content
     problem. Applications must route context termination before calling it.
 
-package validationjsonapi // import "github.com/faustbrian/go-validation/v2/adapters/jsonapi"
+package validationjsonapi // import "github.com/faustbrian/go-validation/v3/adapters/jsonapi"
 
 Package validationjsonapi projects reports into JSON:API error objects. Severity
 and aggregation metadata are package-owned extensions.
@@ -589,7 +589,7 @@ type Source struct {
 }
     Source identifies the invalid document location.
 
-package validationjsonrpc // import "github.com/faustbrian/go-validation/v2/adapters/jsonrpc"
+package validationjsonrpc // import "github.com/faustbrian/go-validation/v3/adapters/jsonrpc"
 
 Package validationjsonrpc projects reports into JSON-RPC invalid-params errors.
 The data member is a package-owned JSON-RPC 2.0 extension.
@@ -632,7 +632,7 @@ type Violation struct {
 }
     Violation is a safe JSON-RPC validation finding.
 
-package validationservice // import "github.com/faustbrian/go-validation/v2/adapters/service"
+package validationservice // import "github.com/faustbrian/go-validation/v3/adapters/service"
 
 Package validationservice provides transport-neutral service hook contracts.
 
@@ -668,7 +668,7 @@ func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
     A provider panic aborts this invocation through the Hook boundary and can
     replace already accumulated findings with the core panic report.
 
-package rules // import "github.com/faustbrian/go-validation/v2/rules"
+package rules // import "github.com/faustbrian/go-validation/v3/rules"
 
 Package rules provides typed validators without coercion/defaulting.
 Use constructors to compose core Validator values; generic inputs/callbacks
@@ -745,6 +745,8 @@ func Keys[K cmp.Ordered, V any](mode validation.Mode,
 	validator validation.Validator[K],
 ) validation.Validator[map[K]V]
     Keys validates ordered map keys in sorted order for deterministic reports.
+    Non-reflexive floating keys (NaNs) fail key admission before child
+    invocation.
 
 func LessThan[T cmp.Ordered](boundary T) validation.Validator[T]
     LessThan requires a value strictly less than boundary.
@@ -833,10 +835,11 @@ func Unique[T comparable]() validation.Validator[[]T]
 func Values[K cmp.Ordered, V any](mode validation.Mode,
 	validator validation.Validator[V],
 ) validation.Validator[map[K]V]
-    Values validates map values in sorted key order and locates each finding
-    at its typed key segment. Ordinary Go map equality/lookup applies: NaN
-    floating keys cannot be retrieved and yield the zero V; they do not provide
-    a dependable keyed-validation location. Inputs must remain unchanged.
+    Values validates map values in sorted key order and locates each finding at
+    its typed key segment. Non-reflexive floating keys (NaNs) fail key admission
+    before child invocation because they cannot identify a deterministic keyed
+    location. Values come from actual map entries, not a second key lookup.
+    Inputs must remain unchanged.
 
 func ZeroValue[T any]() validation.Validator[validation.Value[T]]
     ZeroValue accepts only a present Go zero value.
@@ -860,15 +863,15 @@ type Interval struct {
     Interval groups application time boundaries; the type enforces neither
     endpoint inclusion nor duration. OrderedInterval only checks their order.
 
-package structplan // import "github.com/faustbrian/go-validation/v2/structplan"
+package structplan // import "github.com/faustbrian/go-validation/v3/structplan"
 
 Package structplan provides reflection-free typed plans and optional
 startup-compiled validate-tag plans. New/Add/Compile or CompileTags are
 entry points; these plans validate without binding, coercion or provider IO.
 Builders are mutable and not concurrent; compiled definitions are immutable
 but borrow callbacks/input. Cache serializes compilation and owns no shutdown.
-Compile-time type cycle/depth checks do not bound runtime interface/pointer
-dereference cycles; reflected inputs must satisfy that separate boundary.
+Tag plans reject cyclic runtime pointer/interface dereferences independently of
+compile-time type/depth checks; finite acyclic chains have no hop cap.
 
 VARIABLES
 
@@ -881,7 +884,7 @@ var (
 	ErrDuplicateRule = errors.New("duplicate validation rule")
 	// ErrInvalidTag marks malformed tag grammar or parameters.
 	ErrInvalidTag = errors.New("invalid validation tag")
-	// ErrCycle marks a recursive reflective struct graph.
+	// ErrCycle marks a recursive reflected struct or pointer type traversal.
 	ErrCycle = errors.New("cyclic validation type")
 	// ErrUnsupportedKind marks a type a tag rule cannot evaluate.
 	ErrUnsupportedKind = errors.New("unsupported validation kind")
@@ -961,24 +964,27 @@ func CompileTags[T any](limits validation.Limits) (*TagPlan[T], error)
     It checks grammar, inaccessible tagged fields, visited field count and
     compile-time struct-type cycles/depth. Untagged exported structs/pointers
     recurse; tagged fields retain runtime rule dispatch, including interfaces.
-    It does not prove runtime dereference termination or reject every rule/kind
-    incompatibility at construction. Causes retain private type/tag diagnostics
-    behind fixed outer categories; restrict explicit cause introspection.
+    Runtime dereference cycles are rejected by Validate; not every rule/kind
+    incompatibility is rejected at construction. Causes retain private
+    type/tag diagnostics behind fixed outer categories; restrict explicit cause
+    introspection.
 
 func (plan *TagPlan[T]) Validate(ctx validation.Context, value T) validation.Report
     Validate evaluates fields in compiled declaration order without coercion
     or mutation, using caller Context string/collection/path/report bounds.
     Required fails missing/nil values; non-required rules skip them. Unsupported
     concrete rule/kind combinations fail during validation rather than startup.
-    Runtime pointer/interface chains must be acyclic: indirect/required
-    traversal has no cycle counter or cancellation and can loop on cyclic object
-    graphs. This is an existing runtime limitation, not type-cycle conformance.
+    Runtime pointer/interface dereference cycles fail with a field-local cycle
+    finding before rule work. Finite acyclic chains retain their original
+    semantics; MaxDepth remains a compile-time structural bound, not a runtime
+    hop budget. Inputs are borrowed and must remain unchanged throughout
+    validation.
 
-package validationconfig // import "github.com/faustbrian/go-validation/v2/validationconfig"
+package validationconfig // import "github.com/faustbrian/go-validation/v3/validationconfig"
 
 Package validationconfig adapts typed validators to a small config contract.
 
-Deprecated: use github.com/faustbrian/go-validation/v2/adapters/config.
+Deprecated: use github.com/faustbrian/go-validation/v3/adapters/config.
 This path remains supported for the longer of 180 days after successor public
 availability and two published stable minor releases.
 
@@ -1009,11 +1015,11 @@ type Validator interface {
 }
     Validator is the minimal validation contract used by configuration loaders.
 
-package validationhttp // import "github.com/faustbrian/go-validation/v2/validationhttp"
+package validationhttp // import "github.com/faustbrian/go-validation/v3/validationhttp"
 
 Package validationhttp provides router-neutral HTTP report projection.
 
-Deprecated: use github.com/faustbrian/go-validation/v2/adapters/http. This path
+Deprecated: use github.com/faustbrian/go-validation/v3/adapters/http. This path
 remains supported for the longer of 180 days after successor public availability
 and two published stable minor releases.
 
@@ -1070,12 +1076,12 @@ func FromReport(report validation.Report) Problem
     FromReport projects validation findings into an unprocessable-content
     problem. Applications must route context termination before calling it.
 
-package validationjsonapi // import "github.com/faustbrian/go-validation/v2/validationjsonapi"
+package validationjsonapi // import "github.com/faustbrian/go-validation/v3/validationjsonapi"
 
 Package validationjsonapi projects reports into JSON:API error objects. Severity
 and aggregation metadata are package-owned extensions.
 
-Deprecated: use github.com/faustbrian/go-validation/v2/adapters/jsonapi.
+Deprecated: use github.com/faustbrian/go-validation/v3/adapters/jsonapi.
 This path remains supported for the longer of 180 days after successor public
 availability and two published stable minor releases.
 
@@ -1127,7 +1133,7 @@ type Source struct {
 }
     Source identifies the invalid document location.
 
-package validationobserve // import "github.com/faustbrian/go-validation/v2/validationobserve"
+package validationobserve // import "github.com/faustbrian/go-validation/v3/validationobserve"
 
 Package validationobserve emits findings-only code/severity/operation
 observations through Report. It omits paths, parameters, causes and values,
@@ -1166,12 +1172,12 @@ type Observer interface {
     Observer receives bounded machine labels, not confidentiality-classified
     data.
 
-package validationrpc // import "github.com/faustbrian/go-validation/v2/validationrpc"
+package validationrpc // import "github.com/faustbrian/go-validation/v3/validationrpc"
 
 Package validationrpc projects reports into JSON-RPC invalid-params errors.
 The data member is a package-owned JSON-RPC 2.0 extension.
 
-Deprecated: use github.com/faustbrian/go-validation/v2/adapters/jsonrpc.
+Deprecated: use github.com/faustbrian/go-validation/v3/adapters/jsonrpc.
 This path remains supported for the longer of 180 days after successor public
 availability and two published stable minor releases.
 
@@ -1213,11 +1219,11 @@ type Violation struct {
 }
     Violation is a safe JSON-RPC validation finding.
 
-package validationservice // import "github.com/faustbrian/go-validation/v2/validationservice"
+package validationservice // import "github.com/faustbrian/go-validation/v3/validationservice"
 
 Package validationservice provides transport-neutral service hook contracts.
 
-Deprecated: use github.com/faustbrian/go-validation/v2/adapters/service.
+Deprecated: use github.com/faustbrian/go-validation/v3/adapters/service.
 This path remains supported for the longer of 180 days after successor public
 availability and two published stable minor releases.
 
@@ -1253,7 +1259,7 @@ func Chain[T any](mode validation.Mode, validators ...Validator[T]) Validator[T]
     A provider panic aborts this invocation through the Hook boundary and can
     replace already accumulated findings with the core panic report.
 
-package validationtest // import "github.com/faustbrian/go-validation/v2/validationtest"
+package validationtest // import "github.com/faustbrian/go-validation/v3/validationtest"
 
 Package validationtest provides reusable report assertions and conformance
 helpers for consumers.
@@ -1304,7 +1310,7 @@ type TestingT interface {
 }
     TestingT is the subset of testing.TB used by these helpers.
 
-package validationtext // import "github.com/faustbrian/go-validation/v2/validationtext"
+package validationtext // import "github.com/faustbrian/go-validation/v3/validationtext"
 
 Package validationtext applies borrowed application catalogs through Messages
 without changing machine identity. It owns no provider IO, worker or shutdown;

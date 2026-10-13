@@ -3,8 +3,8 @@ package validationjsonapi_test
 import (
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	validationjsonapi "github.com/faustbrian/go-validation/v2/adapters/jsonapi"
+	validation "github.com/faustbrian/go-validation/v3"
+	validationjsonapi "github.com/faustbrian/go-validation/v3/adapters/jsonapi"
 )
 
 func TestErrorsPreservePathsSeverityAndHiddenBlockingState(t *testing.T) {

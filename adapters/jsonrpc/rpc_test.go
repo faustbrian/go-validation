@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	validationjsonrpc "github.com/faustbrian/go-validation/v2/adapters/jsonrpc"
+	validation "github.com/faustbrian/go-validation/v3"
+	validationjsonrpc "github.com/faustbrian/go-validation/v3/adapters/jsonrpc"
 )
 
 type safeCause string

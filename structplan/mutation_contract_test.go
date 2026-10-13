@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 func TestTypedPlanAcceptsFieldNameAtExactPathLimit(t *testing.T) {

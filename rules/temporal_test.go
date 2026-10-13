@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faustbrian/go-validation/v2/rules"
+	"github.com/faustbrian/go-validation/v3/rules"
 )
 
 type fixedClock struct{ now time.Time }

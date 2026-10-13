@@ -31,6 +31,11 @@ Cross-major named types are not interchangeable. Consumers requiring the
 current safeguards must migrate their validator imports and public contracts
 together. See [`COMPATIBILITY.md`](COMPATIBILITY.md).
 
+Current main prepares `github.com/faustbrian/go-validation/v3` for v3.0.0;
+this candidate is not a published release or a qualification claim. Published
+v2 consumers remain on their existing identities unless explicitly migrated.
+See the [v3 migration guide](docs/migration.md#adopting-v3).
+
 ## Security Gates
 
 Checks follow the changed trust boundary and applicable release risk in

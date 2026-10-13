@@ -8,7 +8,7 @@ package rules
 import (
 	"reflect"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 func pass(ctx validation.Context) validation.Report {

@@ -6,9 +6,9 @@ import (
 	"sync"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	"github.com/faustbrian/go-validation/v2/rules"
-	"github.com/faustbrian/go-validation/v2/structplan"
+	validation "github.com/faustbrian/go-validation/v3"
+	"github.com/faustbrian/go-validation/v3/rules"
+	"github.com/faustbrian/go-validation/v3/structplan"
 )
 
 type account struct {

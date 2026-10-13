@@ -1,12 +1,12 @@
 // Package validationjsonapi projects reports into JSON:API error objects.
 // Severity and aggregation metadata are package-owned extensions.
 //
-// Deprecated: use github.com/faustbrian/go-validation/v2/adapters/jsonapi. This
+// Deprecated: use github.com/faustbrian/go-validation/v3/adapters/jsonapi. This
 // path remains supported for the longer of 180 days after successor public
 // availability and two published stable minor releases.
 package validationjsonapi
 
-import validation "github.com/faustbrian/go-validation/v2"
+import validation "github.com/faustbrian/go-validation/v3"
 
 // Document is a JSON:API error document with report-level metadata.
 type Document struct {

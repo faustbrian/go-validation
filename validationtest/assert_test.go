@@ -3,9 +3,9 @@ package validationtest_test
 import (
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	"github.com/faustbrian/go-validation/v2/rules"
-	"github.com/faustbrian/go-validation/v2/validationtest"
+	validation "github.com/faustbrian/go-validation/v3"
+	"github.com/faustbrian/go-validation/v3/rules"
+	"github.com/faustbrian/go-validation/v3/validationtest"
 )
 
 func TestMutationCasesProveValidatorRejectsDefects(t *testing.T) {

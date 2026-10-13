@@ -5,7 +5,7 @@ import (
 	"math"
 	"strconv"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 // Range requires an ordered value within inclusive bounds.

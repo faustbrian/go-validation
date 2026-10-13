@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	"github.com/faustbrian/go-validation/v2/rules"
+	validation "github.com/faustbrian/go-validation/v3"
+	"github.com/faustbrian/go-validation/v3/rules"
 )
 
 func TestPatternCompilationDiagnosticIsPrivate(t *testing.T) {

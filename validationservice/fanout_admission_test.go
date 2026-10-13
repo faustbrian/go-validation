@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	validation "github.com/faustbrian/go-validation/v2"
-	validationservice "github.com/faustbrian/go-validation/v2/validationservice"
+	validation "github.com/faustbrian/go-validation/v3"
+	validationservice "github.com/faustbrian/go-validation/v3/validationservice"
 )
 
 func TestServiceChainFanoutAdmission(t *testing.T) {

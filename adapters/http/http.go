@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	validation "github.com/faustbrian/go-validation/v2"
+	validation "github.com/faustbrian/go-validation/v3"
 )
 
 // Problem is RFC 9457-inspired, with package extensions; it is not complete.

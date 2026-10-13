@@ -41,10 +41,12 @@ underlying kind. Arrays, maps, and slices use length and honor
 `MaxCollectionSize`; integers, unsigned integers, and floats use numeric
 bounds. Plans are
 immutable. Rule/kind incompatibility can fail at validation instead of startup.
-Compile-time type-cycle/depth checks do not protect cyclic runtime interface/
-pointer graphs: dereferencing currently has no cycle/depth counter and can
-loop. This existing limitation requires separately scoped repair, not a change
-to expected safety policy. `Cache` is instance-owned, bounded, concurrency-safe,
+Runtime pointer/interface normalization detects cycles in constant space and
+returns a field-local `cycle` finding before rule evaluation. It does not walk
+whole object graphs or cap finite acyclic chains. `MaxDepth` still bounds only
+compile-time structural depth. Required preserves non-nil pointer presence,
+while non-required scalar rules normalize to the underlying value. `Cache` is
+instance-owned, bounded, concurrency-safe,
 and clearable; returned plans remain valid after Clear.
 
 ## Composition and cross-field rules

@@ -5,7 +5,7 @@
 // owned concurrency, lifetime and latency; no provider goroutines are started.
 package validationobserve
 
-import validation "github.com/faustbrian/go-validation/v2"
+import validation "github.com/faustbrian/go-validation/v3"
 
 // Observation contains bounded labels only. It intentionally excludes paths,
 // parameters, causes, and rejected values.
