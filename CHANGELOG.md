@@ -3,6 +3,12 @@
 All notable changes follow Keep a Changelog. The public API follows semantic
 versioning.
 
+## 3.0.1 - 2026-10-22
+
+### Changed
+
+- Publish the current source and documentation with a fresh immutable tag.
+
 ## [Unreleased]
 
 ## [3.0.0] - 2026-10-13
